@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   { href: "/admin", label: "Vue d'ensemble" },
-  // Les entrées Clientes, Séances, Prestations, etc. arrivent dans les tranches suivantes.
+  { href: "/admin/clientes", label: "Clientes" },
+  { href: "/admin/demandes", label: "Demandes RDV" },
+  { href: "/admin/seances", label: "Séances" },
+  { href: "/admin/prestations", label: "Prestations" },
 ];
 
 export function Sidebar({ businessName }: { businessName: string }) {
