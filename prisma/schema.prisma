@@ -51,6 +51,7 @@ model auth_users {
   email               String                @unique(map: "auth_users_email_unique")
   emailVerified       DateTime?             @db.Timestamptz(6)
   image               String?
+  password            String?
   auth_accounts       auth_accounts[]
   auth_authenticators auth_authenticators[]
   auth_sessions       auth_sessions[]
