@@ -43,6 +43,14 @@ export default function HomePage() {
           Ici, vous choisissez de vous écouter, de vous reconnecter à votre corps, à vos
           émotions et à ce qui fait sens pour vous.
         </p>
+        <div className="mt-8">
+          <Link
+            href="/reserver"
+            className="inline-block rounded-full bg-primary px-8 py-3.5 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5"
+          >
+            Prendre rendez-vous
+          </Link>
+        </div>
       </section>
 
       {/* Prestations */}
