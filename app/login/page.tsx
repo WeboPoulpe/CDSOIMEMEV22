@@ -8,7 +8,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm rounded-lg">
         <CardHeader>
           <CardTitle className="font-display text-2xl">{theme.business.name}</CardTitle>
-          <p className="text-sm text-foreground/60">Espace gérant</p>
+          <p className="text-sm text-foreground/60">Connectez-vous à votre espace</p>
         </CardHeader>
         <CardContent>
           <LoginForm />

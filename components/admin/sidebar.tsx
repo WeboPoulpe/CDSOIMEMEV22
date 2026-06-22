@@ -8,12 +8,7 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   { href: "/admin", label: "Vue d'ensemble" },
-  { href: "/admin/calendrier", label: "Calendrier" },
-  { href: "/admin/reservations", label: "Réservations" },
-  { href: "/admin/espaces", label: "Espaces" },
-  { href: "/admin/contrats", label: "Modèle de contrat" },
-  { href: "/admin/fermetures", label: "Fermetures" },
-  { href: "/admin/reglages", label: "Réglages" },
+  // Les entrées Clientes, Séances, Prestations, etc. arrivent dans les tranches suivantes.
 ];
 
 export function Sidebar({ businessName }: { businessName: string }) {

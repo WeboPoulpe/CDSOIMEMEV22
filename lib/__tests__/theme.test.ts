@@ -3,7 +3,7 @@ import { theme, themeToCssVars } from "@/lib/theme";
 
 describe("theme", () => {
   it("exposes business identity", () => {
-    expect(theme.business.name).toBe("La Grange Lyotaine");
+    expect(theme.business.name).toBe("CD soi-même");
   });
   it("defines the core palette", () => {
     expect(theme.colors.primary).toMatch(/^#[0-9A-Fa-f]{6}$/);

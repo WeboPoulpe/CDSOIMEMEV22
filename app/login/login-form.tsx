@@ -15,11 +15,11 @@ export function LoginForm() {
     <form action={action} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required defaultValue="admin@demo.fr" />
+        <Input id="email" name="email" type="email" required />
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Mot de passe</Label>
-        <Input id="password" name="password" type="password" required defaultValue="demo1234" />
+        <Input id="password" name="password" type="password" required />
       </div>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       <Button type="submit" className="w-full" disabled={pending}>

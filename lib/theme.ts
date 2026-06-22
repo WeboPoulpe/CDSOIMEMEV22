@@ -24,16 +24,17 @@
  */
 export const theme = {
   business: {
-    name: "La Grange Lyotaine",
+    name: "CD soi-même",
     logo: "/logo.svg",
-    tagline: "Un lieu chaleureux pour travailler, se réunir et créer.",
+    tagline:
+      "Un lieu ressource pour prendre rendez-vous avec vous-même, à votre rythme, en toute sécurité.",
   },
   colors: {
-    background: "#F7F4EF", // pierre / sable clair
-    foreground: "#1F1B16", // encre profonde
-    primary: "#B4502E",    // terracotta / bois
-    secondary: "#7C8B6B",  // vert sauge
-    muted: "#EAE4DB",      // surface secondaire
+    background: "#FBF5F3", // crème rosé
+    foreground: "#3A2A33", // prune profond
+    primary: "#B14A78",    // rose framboise
+    secondary: "#9C6B8E",  // mauve
+    muted: "#F2E6EC",      // rose pâle
   },
   fonts: {
     display: "Bricolage Grotesque",

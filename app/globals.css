@@ -67,21 +67,21 @@
    *   --foreground            ↔  colors.foreground
    *   --radius                ↔  radius
    */
-  /* ── Brand theme overrides (La Grange Lyotaine) ─────────────────────── */
-  --background: #F7F4EF;          /* pierre / sable clair */
-  --foreground: #1F1B16;          /* encre profonde */
-  --primary: #B4502E;             /* terracotta / bois */
-  --primary-foreground: #F7F4EF;  /* light text on primary */
-  --secondary: #7C8B6B;           /* vert sauge */
-  --secondary-foreground: #F7F4EF;
-  --muted: #EAE4DB;               /* surface secondaire */
-  --muted-foreground: #5a5047;
+  /* ── Brand theme overrides (CD soi-même) ────────────────────────────── */
+  --background: #FBF5F3;          /* crème rosé */
+  --foreground: #3A2A33;          /* prune profond */
+  --primary: #B14A78;             /* rose framboise */
+  --primary-foreground: #FFFFFF;  /* light text on primary */
+  --secondary: #9C6B8E;           /* mauve */
+  --secondary-foreground: #FFFFFF;
+  --muted: #F2E6EC;               /* rose pâle */
+  --muted-foreground: #7c6470;
   --radius: 1rem;
   /* ── shadcn defaults — card/popover equal --background; update all three when re-skinning ── */
-  --card: #F7F4EF;                /* = --background; keep in sync */
-  --card-foreground: #1F1B16;
-  --popover: #F7F4EF;             /* = --background; keep in sync */
-  --popover-foreground: #1F1B16;
+  --card: #FBF5F3;                /* = --background; keep in sync */
+  --card-foreground: #3A2A33;
+  --popover: #FBF5F3;             /* = --background; keep in sync */
+  --popover-foreground: #3A2A33;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
