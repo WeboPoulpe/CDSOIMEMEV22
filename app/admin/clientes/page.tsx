@@ -13,7 +13,12 @@ export default async function ClientesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-3xl">Clientes</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-3xl">Clientes</h1>
+        <Link href="/admin/clientes/new" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">
+          Ajouter une cliente
+        </Link>
+      </div>
 
       <Card className="rounded-lg">
         <CardHeader>

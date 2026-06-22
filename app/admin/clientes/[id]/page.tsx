@@ -6,6 +6,7 @@ import { clienteName, formatDateTime, bookingStatusOf } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReplyComposer } from "./reply-composer";
+import { AddSeanceForm, AddDocumentForm } from "./manage-forms";
 
 export default async function ClienteDetailPage({
   params,
@@ -66,6 +67,10 @@ export default async function ClienteDetailPage({
                 <span className="text-sm text-foreground/60">{formatDateTime(s.date)}</span>
               </div>
             ))}
+            <details className="pt-2">
+              <summary className="cursor-pointer text-sm text-primary">+ Ajouter une séance</summary>
+              <div className="pt-3"><AddSeanceForm clienteId={cliente.id} /></div>
+            </details>
           </CardContent>
         </Card>
       </div>
@@ -142,6 +147,10 @@ export default async function ClienteDetailPage({
               <span className="text-sm text-foreground/60">{d.categorie ?? "Document"}</span>
             </a>
           ))}
+          <details className="pt-2">
+            <summary className="cursor-pointer text-sm text-primary">+ Partager un document</summary>
+            <div className="pt-3"><AddDocumentForm clienteId={cliente.id} /></div>
+          </details>
         </CardContent>
       </Card>
     </div>
