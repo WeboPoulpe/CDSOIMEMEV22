@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/lib/auth-schema";
 
+/**
+ * Auth model (CDSOIMEME):
+ *   - Identities live in `auth_users` (email + bcrypt `password`).
+ *   - Roles live in `user_roles` (enum app_role: `praticienne` | `cliente`).
+ * The session carries `role` so guards and redirects can branch by portal.
+ */
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
@@ -14,17 +20,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = loginSchema.safeParse(raw);
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) return null;
+        const user = await prisma.auth_users.findUnique({ where: { email } });
+        if (!user || !user.password) return null;
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
-        return { id: user.id, email: user.email, name: user.name, role: user.role };
+        const roleRow = await prisma.user_roles.findFirst({ where: { user_id: user.id } });
+        const role = roleRow?.role ?? "cliente";
+        return { id: user.id, email: user.email, name: user.name, role };
       },
     }),
   ],
   callbacks: {
     jwt({ token, user }) {
-      if (user) token.role = user.role;
+      if (user) token.role = (user as { role?: string }).role;
       return token;
     },
     session({ session, token }) {
@@ -39,6 +47,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
 export async function requireAdmin() {
   const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!session?.user || session.user.role !== "praticienne") throw new Error("Unauthorized");
+  return session;
+}
+
+export async function requireClient() {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "cliente") throw new Error("Unauthorized");
   return session;
 }
