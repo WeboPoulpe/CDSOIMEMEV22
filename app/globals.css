@@ -10,6 +10,7 @@
   /* Brand fonts — CSS variables injected on <html> by next/font (layout.tsx) */
   --font-display: var(--font-display);
   --font-body: var(--font-body);
+  --font-serif: var(--font-serif);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -153,96 +154,78 @@
   }
 }
 
-/* ── La Grange Lyotaine — public brand styling ───────────────────────────
- * "Atelier" scenes: deep warm wood + a beam of window-light + faint type.
- * All colours derive from theme vars, so re-skinning via lib/theme.ts holds.
- * Tuned for the warm LIGHT theme (dark --foreground). */
+/* ── CD soi-même — public brand styling ──────────────────────────────────
+ * "Lieu ressource" : a slow, breathing aura behind hero/login + soft serif. */
+.font-serif {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+}
+
 .eyebrow {
   font-family: var(--font-body), system-ui, sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--foreground) 55%, transparent);
-}
-.eyebrow--light {
-  color: color-mix(in srgb, var(--primary-foreground) 72%, transparent);
+  color: color-mix(in srgb, var(--foreground) 50%, transparent);
 }
 
-.scene {
-  position: relative;
-  isolation: isolate;
-  background:
-    radial-gradient(130% 110% at 80% -15%,
-      color-mix(in srgb, var(--scene-accent, var(--primary)) 60%, transparent), transparent 58%),
-    repeating-linear-gradient(118deg,
-      color-mix(in srgb, var(--primary-foreground) 6%, transparent) 0 1px, transparent 1px 17px),
-    linear-gradient(155deg,
-      color-mix(in srgb, var(--foreground) 97%, #000),
-      color-mix(in srgb, var(--foreground) 66%, var(--scene-accent, var(--primary))));
-}
-.scene::after {
-  content: "";
+/* Signature: a slowly drifting aura (two/three blurred auroras). */
+.aura-wrap {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background: radial-gradient(100% 85% at 50% 132%, rgba(0, 0, 0, 0.45), transparent 72%);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
 }
-.scene-label {
-  font-family: var(--font-display), system-ui, sans-serif;
-  font-size: clamp(3.5rem, 12vw, 7rem);
-  line-height: 0.78;
-  letter-spacing: -0.03em;
-  color: color-mix(in srgb, var(--primary-foreground) 13%, transparent);
+.aura-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+  will-change: transform;
 }
-.chip-glass {
-  background: color-mix(in srgb, var(--primary-foreground) 16%, transparent);
-  color: color-mix(in srgb, var(--primary-foreground) 92%, transparent);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+.aura-1 {
+  width: 40rem;
+  height: 40rem;
+  top: -14rem;
+  left: -10rem;
+  opacity: 0.5;
+  background: radial-gradient(circle at 35% 35%, #EBA9C8, transparent 68%);
+  animation: auraDrift 24s ease-in-out infinite alternate;
+}
+.aura-2 {
+  width: 34rem;
+  height: 34rem;
+  bottom: -16rem;
+  right: -8rem;
+  opacity: 0.45;
+  background: radial-gradient(circle at 60% 40%, #C7A6DC, transparent 68%);
+  animation: auraDrift 30s ease-in-out infinite alternate-reverse;
+}
+.aura-3 {
+  width: 26rem;
+  height: 26rem;
+  top: 24%;
+  right: 18%;
+  opacity: 0.3;
+  background: radial-gradient(circle, #F4D9AE, transparent 70%);
+  animation: auraDrift 36s ease-in-out infinite alternate;
+}
+@keyframes auraDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, -3%, 0) scale(1.09); }
+  100% { transform: translate3d(-3%, 3%, 0) scale(1.02); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aura-blob { animation: none !important; }
 }
 
-/* react-big-calendar theme integration */
-.rbc-calendar {
-  font-family: var(--font-body), system-ui, sans-serif;
-  color: var(--foreground);
-  height: 100%;
+/* Soft elevated surface for cards/login over the aura. */
+.surface-soft {
+  background: color-mix(in srgb, var(--card) 78%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
 }
-.rbc-toolbar button {
-  color: var(--foreground);
-  border-color: var(--border);
-  border-radius: var(--radius-sm);
-}
-.rbc-toolbar button:hover,
-.rbc-toolbar button.rbc-active {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  border-color: var(--primary);
-}
-.rbc-header {
-  color: var(--muted-foreground);
-  border-color: var(--border);
-}
-.rbc-today {
-  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
-}
-.rbc-off-range-bg {
-  background-color: var(--muted);
-}
-.rbc-event {
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  color: #fff;
-}
-.rbc-month-view,
-.rbc-time-view,
-.rbc-agenda-view {
-  border-color: var(--border);
-}
-.rbc-day-bg + .rbc-day-bg,
-.rbc-month-row + .rbc-month-row,
-.rbc-time-header-content,
-.rbc-time-content,
-.rbc-timeslot-group {
-  border-color: var(--border);
+.hairline-gold {
+  background: linear-gradient(90deg, transparent, #C9A24B, transparent);
 }
