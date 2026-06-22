@@ -7,6 +7,7 @@ import { logoutAction } from "./actions";
 
 const nav = [
   { href: "/espace", label: "Accueil" },
+  { href: "/espace/reserver", label: "Prendre RDV" },
   { href: "/espace/documents", label: "Documents" },
   { href: "/espace/messagerie", label: "Messagerie" },
 ];
