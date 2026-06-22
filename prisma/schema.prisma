@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Resource {
+  id                 String        @id @default(cuid())
+  slug               String        @unique
+  name               String
+  type               ResourceType
+  description        String?
+  capacity           Int           @default(1)
+  requiresValidation Boolean       @default(false)
+  images             String[]      @default([])
+  active             Boolean       @default(true)
+  sortOrder          Int           @default(0)
+  pricings           Pricing[]
+  reservations       Reservation[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+enum ResourceType {
+  COWORKING
+  MEETING_ROOM
+  EVENT_SPACE
+  OFFICE
+}
+
+model Pricing {
+  id         String        @id @default(cuid())
+  resource   Resource      @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  resourceId String
+  unit       BookingUnit
+  priceCents Int
+  label      String?
+  sortOrder  Int           @default(0)
+  tiers      PricingTier[]
+
+  @@unique([resourceId, unit])
+}
+
+// Degressive pricing: a per-unit price that applies once the booked quantity
+// reaches `minQuantity` (e.g. 5+ days at a lower daily rate). The applicable
+// tier is the highest minQuantity <= booked quantity; below the lowest tier
+// the base Pricing.priceCents applies.
+model PricingTier {
+  id          String  @id @default(cuid())
+  pricing     Pricing @relation(fields: [pricingId], references: [id], onDelete: Cascade)
+  pricingId   String
+  minQuantity Int
+  priceCents  Int
+
+  @@unique([pricingId, minQuantity])
+}
+
+enum BookingUnit {
+  HOUR
+  HALF_DAY
+  DAY
+  MONTH
+}
+
+model Reservation {
+  id            String            @id @default(cuid())
+  resource      Resource          @relation(fields: [resourceId], references: [id])
+  resourceId    String
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  company       String?
+  startAt       DateTime
+  endAt         DateTime
+  unit          BookingUnit
+  status        ReservationStatus @default(PENDING)
+  paymentStatus PaymentStatus     @default(UNPAID)
+  totalCents    Int
+  message       String?
+  confirmationEmailSentAt DateTime?
+  calendarEventId         String?
+  contract      Contract?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([resourceId, startAt, endAt])
+  @@index([status])
+  @@index([startAt])
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID // confirmée, en attente de paiement
+  PAID   // confirmée, payée
+}
+
+model ContractTemplate {
+  id        String        @id @default(cuid())
+  name      String
+  appliesTo ResourceType?
+  body      String        @db.Text
+  active    Boolean       @default(true)
+  updatedAt DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+}
+
+model Contract {
+  id            String      @id @default(cuid())
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  reservationId String      @unique
+  templateId    String?
+  bodySnapshot  String      @db.Text
+  pdfUrl        String?
+  sentAt        DateTime?
+  createdAt     DateTime    @default(now())
+}
+
+model ClosedPeriod {
+  id      String   @id @default(cuid())
+  startAt DateTime
+  endAt   DateTime
+  reason  String?
+
+  @@index([startAt, endAt])
+}
+
+model Settings {
+  id           String  @id @default(cuid())
+  businessName String
+  contactEmail String
+  contactPhone String?
+  fromEmail    String
+  address      String?
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+}
