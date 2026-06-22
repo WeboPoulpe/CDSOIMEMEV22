@@ -1,156 +1,365 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model Resource {
-  id                 String        @id @default(cuid())
-  slug               String        @unique
-  name               String
-  type               ResourceType
-  description        String?
-  capacity           Int           @default(1)
-  requiresValidation Boolean       @default(false)
-  images             String[]      @default([])
-  active             Boolean       @default(true)
-  sortOrder          Int           @default(0)
-  pricings           Pricing[]
-  reservations       Reservation[]
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+model auth_accounts {
+  userId            String     @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  auth_users        auth_users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "auth_accounts_userId_auth_users_id_fk")
+
+  @@id([provider, providerAccountId], map: "auth_accounts_provider_providerAccountId_pk")
 }
 
-enum ResourceType {
-  COWORKING
-  MEETING_ROOM
-  EVENT_SPACE
-  OFFICE
+model auth_authenticators {
+  credentialID         String     @unique(map: "auth_authenticators_credentialID_unique")
+  userId               String     @db.Uuid
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+  auth_users           auth_users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "auth_authenticators_userId_auth_users_id_fk")
+
+  @@id([userId, credentialID], map: "auth_authenticators_userId_credentialID_pk")
 }
 
-model Pricing {
-  id         String        @id @default(cuid())
-  resource   Resource      @relation(fields: [resourceId], references: [id], onDelete: Cascade)
-  resourceId String
-  unit       BookingUnit
-  priceCents Int
-  label      String?
-  sortOrder  Int           @default(0)
-  tiers      PricingTier[]
-
-  @@unique([resourceId, unit])
+model auth_sessions {
+  sessionToken String     @id
+  userId       String     @db.Uuid
+  expires      DateTime   @db.Timestamptz(6)
+  auth_users   auth_users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "auth_sessions_userId_auth_users_id_fk")
 }
 
-// Degressive pricing: a per-unit price that applies once the booked quantity
-// reaches `minQuantity` (e.g. 5+ days at a lower daily rate). The applicable
-// tier is the highest minQuantity <= booked quantity; below the lowest tier
-// the base Pricing.priceCents applies.
-model PricingTier {
-  id          String  @id @default(cuid())
-  pricing     Pricing @relation(fields: [pricingId], references: [id], onDelete: Cascade)
-  pricingId   String
-  minQuantity Int
-  priceCents  Int
-
-  @@unique([pricingId, minQuantity])
+model auth_users {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String?
+  email               String                @unique(map: "auth_users_email_unique")
+  emailVerified       DateTime?             @db.Timestamptz(6)
+  image               String?
+  auth_accounts       auth_accounts[]
+  auth_authenticators auth_authenticators[]
+  auth_sessions       auth_sessions[]
 }
 
-enum BookingUnit {
-  HOUR
-  HALF_DAY
-  DAY
-  MONTH
+model auth_verification_tokens {
+  identifier String
+  token      String
+  expires    DateTime @db.Timestamptz(6)
+
+  @@id([identifier, token], map: "auth_verification_tokens_identifier_token_pk")
 }
 
-model Reservation {
-  id            String            @id @default(cuid())
-  resource      Resource          @relation(fields: [resourceId], references: [id])
-  resourceId    String
-  customerName  String
-  customerEmail String
-  customerPhone String?
-  company       String?
-  startAt       DateTime
-  endAt         DateTime
-  unit          BookingUnit
-  status        ReservationStatus @default(PENDING)
-  paymentStatus PaymentStatus     @default(UNPAID)
-  totalCents    Int
-  message       String?
-  confirmationEmailSentAt DateTime?
-  calendarEventId         String?
-  contract      Contract?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-
-  @@index([resourceId, startAt, endAt])
-  @@index([status])
-  @@index([startAt])
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model booking_requests {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id     String     @db.Uuid
+  care_type_id   String     @db.Uuid
+  requested_date DateTime   @db.Timestamptz(6)
+  status         String     @default("pending")
+  notes          String?
+  refusal_reason String?
+  created_at     DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime   @default(now()) @db.Timestamptz(6)
+  care_types     care_types @relation(fields: [care_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles       profiles   @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-enum ReservationStatus {
-  PENDING
-  CONFIRMED
-  REJECTED
-  CANCELLED
-  COMPLETED
+model care_types {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom              String
+  description      String?
+  duree_minutes    Int?               @default(60)
+  prix             Decimal?           @db.Decimal(10, 2)
+  actif            Boolean?           @default(true)
+  ordre            Int?               @default(0)
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  booking_requests booking_requests[]
 }
 
-enum PaymentStatus {
-  UNPAID // confirmée, en attente de paiement
-  PAID   // confirmée, payée
+model client_journal {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id          String   @db.Uuid
+  contenu             String
+  partage_praticienne Boolean? @default(false)
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime @default(now()) @db.Timestamptz(6)
+  profiles            profiles @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-model ContractTemplate {
-  id        String        @id @default(cuid())
-  name      String
-  appliesTo ResourceType?
-  body      String        @db.Text
-  active    Boolean       @default(true)
-  updatedAt DateTime      @updatedAt
-  createdAt DateTime      @default(now())
+model closure_periods {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  start_date DateTime @db.Date
+  end_date   DateTime @db.Date
+  reason     String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
 }
 
-model Contract {
-  id            String      @id @default(cuid())
-  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
-  reservationId String      @unique
-  templateId    String?
-  bodySnapshot  String      @db.Text
-  pdfUrl        String?
-  sentAt        DateTime?
-  createdAt     DateTime    @default(now())
+model document_signatures {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id      String          @db.Uuid
+  document_id     String          @db.Uuid
+  signed_at       DateTime        @default(now()) @db.Timestamptz(6)
+  ip_address      String?
+  profiles        profiles        @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  legal_documents legal_documents @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([cliente_id, document_id])
 }
 
-model ClosedPeriod {
-  id      String   @id @default(cuid())
-  startAt DateTime
-  endAt   DateTime
-  reason  String?
-
-  @@index([startAt, endAt])
+model documents {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id     String?   @db.Uuid
+  titre          String
+  categorie      String?
+  url            String
+  partage_client Boolean?  @default(false)
+  date_upload    DateTime? @default(now()) @db.Timestamptz(6)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  profiles       profiles? @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-model Settings {
-  id           String  @id @default(cuid())
-  businessName String
-  contactEmail String
-  contactPhone String?
-  fromEmail    String
-  address      String?
+model form_responses {
+  id                                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id                         String   @db.Uuid
+  nom                               String
+  prenom                            String
+  email                             String
+  date_naissance                    String?
+  lieu_naissance                    String?
+  adresse                           String?
+  telephone                         String?
+  niveau_etudes                     String?
+  parcours_professionnel            String?
+  situation_professionnelle         String?
+  situation_professionnelle_duree   String?
+  situation_professionnelle_details String?
+  situation_familiale               String?
+  situation_familiale_duree         String?
+  situation_familiale_conjoint      String?
+  situation_familiale_enfants       String?
+  situation_familiale_details       String?
+  raison_rdv                        String?
+  causes                            String?
+  consequences                      String?
+  objectif                          String?
+  objectif_avec_qui                 String?
+  echeance                          String?
+  indicateur_objectif               String?
+  obstacles                         String?
+  ressources                        String?
+  besoins                           String?
+  created_at                        DateTime @default(now()) @db.Timestamptz(6)
+  updated_at                        DateTime @default(now()) @db.Timestamptz(6)
+  profiles                          profiles @relation(fields: [client_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  role      Role     @default(ADMIN)
-  createdAt DateTime @default(now())
+model legal_documents {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type                String
+  titre               String
+  contenu             String
+  version             Int                   @default(1)
+  actif               Boolean?              @default(true)
+  created_at          DateTime              @default(now()) @db.Timestamptz(6)
+  document_signatures document_signatures[]
 }
 
-enum Role {
-  ADMIN
+model mantras {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contenu    String
+  auteur     String?
+  actif      Boolean?  @default(true)
+  date_debut DateTime? @default(dbgenerated("CURRENT_DATE")) @db.Date
+  date_fin   DateTime? @db.Date
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model messages {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id     String    @db.Uuid
+  contenu        String
+  expediteur     String
+  document_joint String?
+  lu             Boolean?  @default(false)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  profiles       profiles  @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model notification_devices {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id      String   @db.Uuid
+  provider     String   @default("onesignal")
+  device_token String
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([user_id, device_token])
+  @@index([user_id], map: "idx_notification_devices_user_id")
+}
+
+model notifications {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String   @db.Uuid
+  type       String
+  title      String
+  body       String
+  is_read    Boolean  @default(false)
+  related_id String?  @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([created_at(sort: Desc)], map: "idx_notifications_created_at")
+  @@index([is_read], map: "idx_notifications_is_read")
+  @@index([user_id], map: "idx_notifications_user_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model opening_hours {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  day_of_week       Int       @unique
+  start_time        DateTime  @db.Time(6)
+  end_time          DateTime  @db.Time(6)
+  is_open           Boolean?  @default(true)
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime  @default(now()) @db.Timestamptz(6)
+  lunch_break_start DateTime? @db.Time(6)
+  lunch_break_end   DateTime? @db.Time(6)
+}
+
+model personal_slots {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String
+  start_datetime DateTime @db.Timestamptz(6)
+  end_datetime   DateTime @db.Timestamptz(6)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model private_notes {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id         String   @db.Uuid
+  seance_id          String?  @db.Uuid
+  type               String   @default("session")
+  contenu            String
+  objectifs_atteints String?
+  ressentis          String?
+  axes_explorer      String?
+  created_at         DateTime @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime @default(now()) @db.Timestamptz(6)
+  seances            seances? @relation(fields: [seance_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model profiles {
+  id                      String                @id @db.Uuid
+  nom                     String?
+  prenom                  String?
+  telephone               String?
+  ville                   String?
+  statut                  String?
+  axe_corps               Int?                  @default(5)
+  axe_coeur               Int?                  @default(5)
+  axe_esprit              Int?                  @default(5)
+  created_at              DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime?             @default(now()) @db.Timestamptz(6)
+  objectif_principal      String?
+  preference_seance       String?
+  source_arrivee          String?
+  notes_accueil           String?
+  account_token           String?
+  token_expiration        DateTime?             @db.Timestamptz(6)
+  email                   String?
+  auth_user_id            String?               @db.Uuid
+  nom_praticienne         String?
+  photo_profil            String?
+  logo_praticienne        String?
+  forme_juridique         String?
+  siret                   String?
+  adresse_entreprise      String?
+  template_formulaire     String?
+  template_seance         String?
+  template_magic_link     String?
+  template_document       String?
+  template_validation_rdv String?
+  template_refus_rdv      String?
+  booking_requests        booking_requests[]
+  client_journal          client_journal[]
+  document_signatures     document_signatures[]
+  documents               documents[]
+  form_responses          form_responses[]
+  messages                messages[]
+  rappels                 rappels[]
+  seances                 seances[]
+
+  @@index([account_token], map: "idx_profiles_account_token", where: raw("(account_token IS NOT NULL)"))
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model rappels {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id  String    @db.Uuid
+  action      String
+  date_limite DateTime? @db.Timestamptz(6)
+  statut      String?   @default("en_attente")
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  profiles    profiles  @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model seances {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cliente_id    String?         @db.Uuid
+  date          DateTime        @db.Timestamptz(6)
+  type          String
+  lieu          String?
+  notes         String?
+  exercices     String?
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  statut_envoi  String?         @default("non_envoye")
+  nom_externe   String?         @db.VarChar(255)
+  email_externe String?         @db.VarChar(255)
+  private_notes private_notes[]
+  profiles      profiles?       @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model todos {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  praticienne_id String    @db.Uuid
+  cliente_id     String?   @db.Uuid
+  titre          String
+  description    String?
+  date_echeance  DateTime? @db.Date
+  periode        String?   @default("quotidien")
+  priorite       String?   @default("normale")
+  statut         String?   @default("en_attente")
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+model user_roles {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  role       app_role
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([user_id, role])
+}
+
+enum app_role {
+  praticienne
+  cliente
 }
