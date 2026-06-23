@@ -219,6 +219,16 @@
   .aura-blob { animation: none !important; }
 }
 
+/* Lateral login sheet — slides in on load. */
+@keyframes sheetIn {
+  from { transform: translateX(-28px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.sheet-in { animation: sheetIn 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .sheet-in { animation: none; }
+}
+
 /* Soft elevated surface for cards/login over the aura. */
 .surface-soft {
   background: color-mix(in srgb, var(--card) 78%, transparent);
