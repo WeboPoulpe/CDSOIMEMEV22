@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReplyComposer } from "./reply-composer";
 import { AddSeanceForm, AddDocumentForm } from "./manage-forms";
+import { SendQuestionnaire } from "./send-questionnaire";
 import { PageHeader } from "@/components/admin/ui";
 
 export default async function ClienteDetailPage({
@@ -94,21 +95,30 @@ export default async function ClienteDetailPage({
         </CardContent>
       </Card>
 
-      {questionnaire && (
-        <Card className="rounded-lg">
-          <CardHeader><CardTitle>Questionnaire d'accueil</CardTitle></CardHeader>
-          <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
-            <Field label="Raison du rendez-vous" value={questionnaire.raison_rdv} />
-            <Field label="Objectif" value={questionnaire.objectif} />
-            <Field label="Causes" value={questionnaire.causes} />
-            <Field label="Conséquences" value={questionnaire.consequences} />
-            <Field label="Obstacles" value={questionnaire.obstacles} />
-            <Field label="Ressources" value={questionnaire.ressources} />
-            <Field label="Besoins" value={questionnaire.besoins} />
-            <Field label="Échéance" value={questionnaire.echeance} />
-          </CardContent>
-        </Card>
-      )}
+      <Card className="rounded-lg">
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
+          <CardTitle>Questionnaire d'accueil</CardTitle>
+          <SendQuestionnaire clienteId={cliente.id} />
+        </CardHeader>
+        <CardContent>
+          {questionnaire ? (
+            <div className="grid gap-3 text-sm sm:grid-cols-2">
+              <Field label="Raison du rendez-vous" value={questionnaire.raison_rdv} />
+              <Field label="Objectif" value={questionnaire.objectif} />
+              <Field label="Causes" value={questionnaire.causes} />
+              <Field label="Conséquences" value={questionnaire.consequences} />
+              <Field label="Obstacles" value={questionnaire.obstacles} />
+              <Field label="Ressources" value={questionnaire.ressources} />
+              <Field label="Besoins" value={questionnaire.besoins} />
+              <Field label="Échéance" value={questionnaire.echeance} />
+            </div>
+          ) : (
+            <p className="text-sm text-foreground/50">
+              Pas encore rempli. Envoie-le par email — elle pourra le compléter sans se connecter.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="rounded-lg">
         <CardHeader><CardTitle>Messagerie</CardTitle></CardHeader>

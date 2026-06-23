@@ -273,3 +273,20 @@ export function resetPasswordEmailHtml(p: {
       para(`<span style="color:${SUBTLE};font-size:13px;">Ce lien est valable 1 heure. Si tu n'es pas à l'origine de cette demande, tu peux ignorer cet email.</span>`),
   });
 }
+
+export function questionnaireInviteHtml(p: {
+  businessName: string;
+  url: string;
+  name?: string;
+}): string {
+  return emailShell({
+    businessName: p.businessName,
+    badge: "Questionnaire",
+    accent: C.primary,
+    heading: p.name ? `Bonjour ${p.name} 🌸` : "Ton questionnaire",
+    body:
+      para("Avant notre rendez-vous, peux-tu prendre un moment pour remplir ce court questionnaire ? Il m'aide à préparer au mieux ton accompagnement.") +
+      `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 16px;"><tr><td style="border-radius:999px;background:${C.primary};"><a href="${p.url}" style="display:inline-block;padding:13px 26px;font:600 15px/1 ${SANS};color:#ffffff;text-decoration:none;border-radius:999px;">Remplir le questionnaire</a></td></tr></table>` +
+      para(`<span style="color:${SUBTLE};font-size:13px;">Ce lien t'est personnel et reste valable 14 jours.</span>`),
+  });
+}
