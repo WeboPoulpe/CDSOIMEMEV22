@@ -28,6 +28,12 @@ export default function LoginPage() {
           <div className="mt-7">
             <LoginForm />
           </div>
+
+          <p className="mt-5 text-center text-sm">
+            <Link href="/mot-de-passe" className="text-primary/80 underline-offset-4 hover:text-primary hover:underline">
+              Mot de passe oublié ou première connexion ?
+            </Link>
+          </p>
         </div>
 
         <p className="mt-6 text-center text-xs text-foreground/45">

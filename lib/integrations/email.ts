@@ -256,3 +256,20 @@ export function bookingConfirmedClientHtml(p: {
       para("Prends soin de toi d'ici là. À très vite 🌿"),
   });
 }
+
+export function resetPasswordEmailHtml(p: {
+  businessName: string;
+  url: string;
+  name?: string;
+}): string {
+  return emailShell({
+    businessName: p.businessName,
+    badge: "Accès à ton espace",
+    accent: C.primary,
+    heading: p.name ? `Bonjour ${p.name}` : "Ton mot de passe",
+    body:
+      para("Voici ton lien sécurisé pour définir (ou réinitialiser) ton mot de passe et accéder à ton espace.") +
+      `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 16px;"><tr><td style="border-radius:999px;background:${C.primary};"><a href="${p.url}" style="display:inline-block;padding:13px 26px;font:600 15px/1 ${SANS};color:#ffffff;text-decoration:none;border-radius:999px;">Définir mon mot de passe</a></td></tr></table>` +
+      para(`<span style="color:${SUBTLE};font-size:13px;">Ce lien est valable 1 heure. Si tu n'es pas à l'origine de cette demande, tu peux ignorer cet email.</span>`),
+  });
+}
