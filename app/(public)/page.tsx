@@ -79,9 +79,9 @@ export default async function HomePage() {
       </section>
 
       {/* À propos */}
-      <section className="mx-auto max-w-5xl px-5 py-16">
-        <div className="grid items-center gap-10 rounded-[2rem] border border-primary/10 bg-card/60 p-8 backdrop-blur-sm sm:grid-cols-[0.8fr_1.2fr] sm:p-10">
-          <div className="relative mx-auto h-44 w-44 overflow-hidden rounded-full ring-1 ring-primary/15 sm:mx-0">
+      <section className="border-y border-primary/10 bg-muted/60 py-20">
+        <div className="mx-auto grid max-w-5xl items-center gap-10 px-5 sm:grid-cols-[0.8fr_1.2fr]">
+          <div className="relative mx-auto h-44 w-44 overflow-hidden rounded-full ring-1 ring-primary/20 shadow-lg shadow-primary/10 sm:mx-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/charline.svg" alt="Charline" className="h-full w-full object-cover" />
           </div>
@@ -100,7 +100,7 @@ export default async function HomePage() {
       </section>
 
       {/* Accompagnements (dynamiques) */}
-      <section id="accompagnements" className="scroll-mt-20 bg-muted/30 py-20">
+      <section id="accompagnements" className="scroll-mt-20 bg-background py-20">
         <div className="mx-auto max-w-6xl px-5">
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow">Mes accompagnements</p>
@@ -134,19 +134,21 @@ export default async function HomePage() {
       </section>
 
       {/* Témoignages */}
-      <section className="mx-auto max-w-5xl px-5 py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow">Ce qu'elles en disent</p>
-          <div className="hairline-gold mx-auto mt-4 h-px w-20 opacity-50" />
-        </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-3">
-          {TEMOIGNAGES.map((t) => (
-            <figure key={t.name} className="rounded-[1.5rem] border border-primary/10 bg-card/60 p-6 backdrop-blur-sm">
-              <Quote className="h-5 w-5 text-primary/40" />
-              <blockquote className="mt-3 font-serif text-lg leading-snug text-foreground/85">« {t.quote} »</blockquote>
-              <figcaption className="mt-4 text-sm text-foreground/55">— {t.name}</figcaption>
-            </figure>
-          ))}
+      <section className="border-y border-primary/10 bg-secondary/10 py-20">
+        <div className="mx-auto max-w-5xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">Ce qu'elles en disent</p>
+            <div className="hairline-gold mx-auto mt-4 h-px w-20 opacity-50" />
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-3">
+            {TEMOIGNAGES.map((t) => (
+              <figure key={t.name} className="rounded-[1.5rem] border border-primary/10 bg-card/80 p-6 shadow-sm backdrop-blur-sm">
+                <Quote className="h-5 w-5 text-primary/40" />
+                <blockquote className="mt-3 font-serif text-lg leading-snug text-foreground/85">« {t.quote} »</blockquote>
+                <figcaption className="mt-4 text-sm text-foreground/55">— {t.name}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
 
