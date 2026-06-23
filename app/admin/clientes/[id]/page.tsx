@@ -6,7 +6,7 @@ import { clienteName, formatDateTime, bookingStatusOf } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReplyComposer } from "./reply-composer";
-import { AddSeanceForm, AddDocumentForm } from "./manage-forms";
+import { AddSeanceForm, AddDocumentForm, DocumentUpload } from "./manage-forms";
 import { SendQuestionnaire } from "./send-questionnaire";
 import { PageHeader } from "@/components/admin/ui";
 
@@ -159,7 +159,13 @@ export default async function ClienteDetailPage({
           ))}
           <details className="pt-2">
             <summary className="cursor-pointer text-sm text-primary">+ Partager un document</summary>
-            <div className="pt-3"><AddDocumentForm clienteId={cliente.id} /></div>
+            <div className="space-y-4 pt-3">
+              <DocumentUpload clienteId={cliente.id} />
+              <details className="text-sm">
+                <summary className="cursor-pointer text-foreground/55">ou ajouter par lien externe</summary>
+                <div className="pt-2"><AddDocumentForm clienteId={cliente.id} /></div>
+              </details>
+            </div>
           </details>
         </CardContent>
       </Card>

@@ -1,6 +1,7 @@
 "use server";
 
 import { randomBytes } from "crypto";
+import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -46,6 +47,35 @@ export async function addDocumentAction(
       categorie: input.categorie?.trim() || null,
       partage_client: true,
     },
+  });
+  revalidatePath(`/admin/clientes/${clienteId}`);
+  return {};
+}
+
+export async function uploadDocumentAction(clienteId: string, formData: FormData): Promise<{ error?: string }> {
+  await requireAdmin();
+  const file = formData.get("file");
+  const titre = String(formData.get("titre") || "").trim();
+  const categorie = String(formData.get("categorie") || "").trim();
+  if (!(file instanceof File) || file.size === 0) return { error: "Choisis un fichier." };
+  if (file.size > 12 * 1024 * 1024) return { error: "Fichier trop lourd (max 12 Mo)." };
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return { error: "Stockage non configuré — renseigne BLOB_READ_WRITE_TOKEN (Vercel Blob)." };
+  }
+  let url: string;
+  try {
+    const blob = await put(`documents/${clienteId}/${file.name}`, file, {
+      access: "public",
+      addRandomSuffix: true,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+    url = blob.url;
+  } catch (e) {
+    console.error("⚠️ upload blob:", e);
+    return { error: "Envoi du fichier impossible." };
+  }
+  await prisma.documents.create({
+    data: { cliente_id: clienteId, titre: titre || file.name, url, categorie: categorie || null, partage_client: true },
   });
   revalidatePath(`/admin/clientes/${clienteId}`);
   return {};

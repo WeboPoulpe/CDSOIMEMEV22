@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { addSeanceAction, addDocumentAction } from "./manage-actions";
+import { addSeanceAction, addDocumentAction, uploadDocumentAction } from "./manage-actions";
 import { SEANCE_TYPES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +53,45 @@ export function AddSeanceForm({ clienteId }: { clienteId: string }) {
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <Button type="submit" disabled={pending || !date}>{pending ? "Ajout…" : "Ajouter la séance"}</Button>
+    </form>
+  );
+}
+
+export function DocumentUpload({ clienteId }: { clienteId: string }) {
+  const [pending, start] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+
+  return (
+    <form
+      ref={formRef}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const fd = new FormData(e.currentTarget);
+        setError(null);
+        start(async () => {
+          const res = await uploadDocumentAction(clienteId, fd);
+          if (res?.error) setError(res.error);
+          else { formRef.current?.reset(); setFileName(""); router.refresh(); }
+        });
+      }}
+      className="space-y-3"
+    >
+      <input
+        type="file"
+        name="file"
+        required
+        onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+        className="block w-full text-sm text-foreground/70 file:mr-3 file:rounded-full file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/15"
+      />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Input name="titre" placeholder={fileName || "Titre (optionnel)"} />
+        <Input name="categorie" placeholder="Catégorie (optionnel)" />
+      </div>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <Button type="submit" disabled={pending}>{pending ? "Envoi…" : "Téléverser le document"}</Button>
     </form>
   );
 }
