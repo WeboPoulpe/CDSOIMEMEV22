@@ -15,7 +15,7 @@ export function DynamicQuestionnaireForm({
 }: {
   fields: QField[];
   defaults: Partial<Identity>;
-  submit: (identity: Identity, answers: Answer[]) => Promise<{ ok?: boolean; error?: string }>;
+  submit: (identity: Identity, answers: Answer[], consent: boolean) => Promise<{ ok?: boolean; error?: string }>;
 }) {
   const [identity, setIdentity] = useState<Identity>({
     prenom: defaults.prenom ?? "",
@@ -50,7 +50,7 @@ export function DynamicQuestionnaireForm({
         setError(null);
         const answers: Answer[] = fields.map((f) => ({ label: f.label, value: (ans[f.id] ?? "").trim() }));
         start(async () => {
-          const res = await submit(identity, answers);
+          const res = await submit(identity, answers, consent);
           if (res?.error) setError(res.error);
           else setDone(true);
         });

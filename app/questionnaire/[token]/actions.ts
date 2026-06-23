@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { logConsent } from "@/lib/consent";
 import type { Identity, Answer } from "@/components/dynamic-questionnaire-form";
 
 const identitySchema = z.object({
@@ -14,8 +15,10 @@ const identitySchema = z.object({
 export async function submitPublicQuestionnaireAction(
   token: string,
   identity: Identity,
-  answers: Answer[]
+  answers: Answer[],
+  consent: boolean
 ): Promise<{ ok?: boolean; error?: string }> {
+  if (!consent) return { error: "Merci de donner ton consentement pour continuer." };
   const profile = await prisma.profiles.findFirst({ where: { account_token: token } });
   if (!profile || !profile.token_expiration || profile.token_expiration.getTime() < Date.now()) {
     return { error: "Ce lien est invalide ou a expiré." };
@@ -35,5 +38,6 @@ export async function submitPublicQuestionnaireAction(
     },
   });
   await prisma.profiles.update({ where: { id: profile.id }, data: { account_token: null, token_expiration: null } });
+  await logConsent("questionnaire", d.email);
   return { ok: true };
 }

@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { getAvailableSlots } from "@/lib/availability";
 import { notifyBookingReceived } from "@/lib/notifications";
+import { logConsent } from "@/lib/consent";
 
 /** CORS headers so the booking widget can call the API from cdsoimeme.fr. */
 export const CORS_HEADERS: Record<string, string> = {
@@ -19,6 +20,7 @@ export const publicBookingSchema = z.object({
   careTypeId: z.string().min(1, "Prestation requise"),
   requestedDate: z.string().min(1, "Date requise"), // ISO datetime
   notes: z.string().optional(),
+  consent: z.boolean().optional(),
 });
 
 export type PublicBookingInput = z.infer<typeof publicBookingSchema>;
@@ -36,6 +38,7 @@ export async function createPublicBooking(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Données invalides." };
   }
   const d = parsed.data;
+  if (!d.consent) return { ok: false, error: "Merci d'accepter la politique de confidentialité." };
 
   const care = await prisma.care_types.findFirst({ where: { id: d.careTypeId, actif: true } });
   if (!care) return { ok: false, error: "Prestation introuvable." };
@@ -75,6 +78,8 @@ export async function createPublicBooking(
       notes: d.notes?.trim() || null,
     },
   });
+
+  await logConsent("reservation", d.email);
 
   await notifyBookingReceived({
     clientEmail: d.email,

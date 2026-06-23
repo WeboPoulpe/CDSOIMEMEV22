@@ -11,7 +11,8 @@ const TITLES: Record<string, string> = {
   cookies: "Gestion des cookies",
 };
 
-const CONTACT = "contact@cdsoimeme.fr";
+const CONTACT = "cdsoimeme@gmail.com";
+const PHONE = "06 75 13 73 88";
 
 export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -27,9 +28,9 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
       : null;
 
   const nomPrat = prat?.nom_praticienne || "Charline";
-  const forme = prat?.forme_juridique || "Entreprise individuelle (à compléter)";
+  const forme = prat?.forme_juridique || "Auto-entrepreneur (micro-entreprise)";
   const siret = prat?.siret || "à compléter";
-  const adresse = prat?.adresse_entreprise || "Sainte-Savine (10300) — adresse complète à compléter";
+  const adresse = prat?.adresse_entreprise || "Sainte-Savine (10300), près de Troyes";
 
   return (
     <article className="mx-auto max-w-3xl px-5 py-16">
@@ -45,7 +46,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
               <p>Forme juridique : {forme}</p>
               <p>SIRET : {siret}</p>
               <p>Adresse : {adresse}</p>
-              <p>Contact : {CONTACT}</p>
+              <p>Contact : {CONTACT} · {PHONE}</p>
               <p>Directrice de la publication : {nomPrat}.</p>
             </Sec>
             <Sec title="Hébergement">

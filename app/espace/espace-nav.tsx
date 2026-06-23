@@ -10,6 +10,7 @@ const NAV = [
   { href: "/espace/questionnaire", label: "Questionnaire" },
   { href: "/espace/documents", label: "Documents" },
   { href: "/espace/messagerie", label: "Messagerie" },
+  { href: "/espace/confidentialite", label: "Mes données" },
 ];
 
 export function EspaceNav() {

@@ -44,7 +44,7 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
       const res = await fetch("/api/public/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, careTypeId: presta.id, requestedDate: `${date}T${time}` }),
+        body: JSON.stringify({ ...form, consent, careTypeId: presta.id, requestedDate: `${date}T${time}` }),
       });
       const out = await res.json();
       if (!res.ok) setError(out.error ?? "Une erreur est survenue.");

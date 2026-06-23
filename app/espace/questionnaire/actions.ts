@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireClient } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
+import { logConsent } from "@/lib/consent";
 import type { Identity, Answer } from "@/components/dynamic-questionnaire-form";
 
 const identitySchema = z.object({
@@ -16,8 +17,10 @@ const identitySchema = z.object({
 
 export async function submitQuestionnaireAction(
   identity: Identity,
-  answers: Answer[]
+  answers: Answer[],
+  consent: boolean
 ): Promise<{ ok?: boolean; error?: string }> {
+  if (!consent) return { error: "Merci de donner ton consentement pour continuer." };
   const session = await requireClient();
   const profile = await currentClienteProfile(session.user.id);
   if (!profile) return { error: "Profil introuvable." };
@@ -35,6 +38,7 @@ export async function submitQuestionnaireAction(
       answers: answers.filter((a) => a.value) as object,
     },
   });
+  await logConsent("questionnaire", d.email);
   revalidatePath("/espace/questionnaire");
   return { ok: true };
 }
