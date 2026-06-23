@@ -1,9 +1,12 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/display";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/admin/ui";
+import { CardActions } from "./card-actions";
+
+export const dynamic = "force-dynamic";
 
 export default async function PrestationsPage() {
   await requireAdmin();
@@ -12,26 +15,42 @@ export default async function PrestationsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Prestations" subtitle="Tes soins et accompagnements" />
+    <div>
+      <PageHeader
+        title="Prestations"
+        subtitle="Tes soins et accompagnements"
+        action={
+          <Link href="/admin/prestations/new" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-primary/20 transition-transform hover:-translate-y-0.5">
+            Ajouter une prestation
+          </Link>
+        }
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {prestations.map((p) => (
-          <Card key={p.id} className="rounded-lg">
-            <CardHeader className="flex flex-row items-start justify-between gap-2">
-              <CardTitle className="text-base">{p.nom}</CardTitle>
-              {!p.actif && <Badge variant="outline">Inactive</Badge>}
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              {p.description && <p className="text-foreground/65">{p.description}</p>}
-              <div className="flex gap-4 text-foreground/70">
-                <span>{p.duree_minutes ?? 60} min</span>
-                <span>{formatPrice(p.prix)}</span>
+      {prestations.length === 0 ? (
+        <p className="text-sm text-foreground/45">Aucune prestation. Crée la première.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {prestations.map((p) => (
+            <div
+              key={p.id}
+              className={`rounded-2xl border border-primary/10 bg-card/70 p-6 backdrop-blur-sm transition-colors ${p.actif ? "" : "opacity-60"}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-serif text-lg text-foreground">{p.nom}</h2>
+                  {!p.actif && <Badge variant="outline" className="mt-1">Inactive</Badge>}
+                </div>
+                <CardActions id={p.id} nom={p.nom} actif={p.actif ?? true} />
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              {p.description && <p className="mt-2 text-sm text-foreground/60">{p.description}</p>}
+              <div className="mt-3 flex gap-4 text-sm text-foreground/70">
+                <span>{p.duree_minutes ?? 60} min</span>
+                <span className="font-medium text-primary">{formatPrice(p.prix)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
