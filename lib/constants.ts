@@ -15,3 +15,12 @@ export const SEANCE_TYPES = [
 ] as const;
 
 export type SeanceType = (typeof SEANCE_TYPES)[number];
+
+/** Canonical cliente statuses (the column is free text — these are the suggested set). */
+export const CLIENTE_STATUTS = [
+  "Prospection",
+  "Nouvelle",
+  "En accompagnement",
+  "En pause",
+  "Terminée",
+] as const;
