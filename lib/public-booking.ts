@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
+import { getAvailableSlots } from "@/lib/availability";
 
 /** CORS headers so the booking widget can call the API from cdsoimeme.fr. */
 export const CORS_HEADERS: Record<string, string> = {
@@ -41,6 +42,14 @@ export async function createPublicBooking(
   const date = new Date(d.requestedDate);
   if (isNaN(date.getTime())) return { ok: false, error: "Date invalide." };
   if (date.getTime() < Date.now()) return { ok: false, error: "Choisissez une date à venir." };
+
+  // Re-check the slot is still offered (guards against double-booking / tampering).
+  const dateStr = d.requestedDate.slice(0, 10);
+  const hm = d.requestedDate.slice(11, 16);
+  const slots = await getAvailableSlots(d.careTypeId, dateStr);
+  if (!slots.includes(hm)) {
+    return { ok: false, error: "Ce créneau n'est plus disponible. Choisissez-en un autre." };
+  }
 
   let profile = await prisma.profiles.findFirst({ where: { email: d.email } });
   if (!profile) {
