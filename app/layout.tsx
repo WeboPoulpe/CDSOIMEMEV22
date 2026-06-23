@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, Fraunces } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { CookieBanner } from "@/components/cookie-banner";
 import { theme, themeToCssVars } from "@/lib/theme";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="fr" className={`${display.variable} ${body.variable} ${serif.variable}`}>
       <body style={cssVars} className="bg-background text-foreground font-body antialiased">
         {children}
+        <CookieBanner />
         <Toaster />
       </body>
     </html>

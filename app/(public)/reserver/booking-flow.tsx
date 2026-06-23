@@ -29,6 +29,7 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
   const [date, setDate] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [form, setForm] = useState({ prenom: "", nom: "", email: "", telephone: "", notes: "" });
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -129,8 +130,15 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
                   <Label>Un mot pour Charline (optionnel)</Label>
                   <Textarea value={form.notes} onChange={set("notes")} rows={3} />
                 </div>
+                <label className="flex items-start gap-2.5 text-sm text-foreground/65">
+                  <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4" required />
+                  <span>
+                    J'accepte que mes informations soient utilisées pour traiter ma demande, conformément à la{" "}
+                    <a href="/legal/confidentialite" target="_blank" rel="noreferrer" className="text-primary underline">politique de confidentialité</a>.
+                  </span>
+                </label>
                 {error && <p className="text-sm text-red-600">{error}</p>}
-                <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+                <Button type="submit" disabled={pending || !consent} className="w-full sm:w-auto">
                   {pending ? "Envoi…" : "Confirmer ma demande"}
                 </Button>
               </form>

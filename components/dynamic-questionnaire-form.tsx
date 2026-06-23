@@ -24,6 +24,7 @@ export function DynamicQuestionnaireForm({
     telephone: defaults.telephone ?? "",
   });
   const [ans, setAns] = useState<Record<string, string>>({});
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [pending, start] = useTransition();
@@ -73,8 +74,16 @@ export function DynamicQuestionnaireForm({
         </Field>
       ))}
 
+      <label className="flex items-start gap-2.5 text-sm text-foreground/65">
+        <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4" required />
+        <span>
+          Je consens au traitement de ces informations, y compris relatives à mon bien-être, dans
+          le cadre de mon accompagnement (
+          <a href="/legal/confidentialite" target="_blank" rel="noreferrer" className="text-primary underline">en savoir plus</a>).
+        </span>
+      </label>
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <Button type="submit" disabled={pending}>{pending ? "Envoi…" : "Transmettre mon questionnaire"}</Button>
+      <Button type="submit" disabled={pending || !consent}>{pending ? "Envoi…" : "Transmettre mon questionnaire"}</Button>
     </form>
   );
 }

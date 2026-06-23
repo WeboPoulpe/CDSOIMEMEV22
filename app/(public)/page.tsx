@@ -141,7 +141,7 @@ export default async function HomePage() {
             <h2 className="mt-3 font-serif text-3xl text-foreground sm:text-4xl">Un cocon pour se déposer</h2>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {["gallery-1", "gallery-2", "gallery-3", "gallery-4", "gallery-5", "gallery-6"].map((g, i) => (
+            {["bol-tibetain", "cristaux-encens", "reflexologie-close", "huiles-essentielles", "massage-dos-vue", "cymbales-tibetaines"].map((g, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={g}
