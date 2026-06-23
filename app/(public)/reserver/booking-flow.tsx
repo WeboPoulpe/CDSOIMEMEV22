@@ -295,29 +295,19 @@ function SlotPicker({
 function VisualPanel({
   presta, date, time, step,
 }: { presta: Prestation | null; date: string | null; time: string | null; step: Step }) {
-  const [imgOk, setImgOk] = useState(true);
+  // Tries the real portrait first; falls back to the branded SVG placeholder.
+  const [src, setSrc] = useState("/charline.jpg");
   return (
     <div className="relative hidden overflow-hidden rounded-[1.75rem] lg:block">
-      {imgOk ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src="/charline.jpg"
-          alt="Charline — CD soi-même"
-          onError={() => setImgOk(false)}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#F2D9E4] via-[#EAD7E6] to-[#F4E6CF]" />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt="Charline — CD soi-même"
+        onError={() => setSrc("/charline.svg")}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-foreground/55 via-foreground/10 to-transparent" />
       <div className="relative flex h-full min-h-[26rem] flex-col justify-between p-7 text-primary-foreground">
-        <div>
-          {!imgOk && (
-            <span className="grid h-16 w-16 place-items-center rounded-full bg-white/30 font-serif text-2xl text-white backdrop-blur">
-              CD
-            </span>
-          )}
-        </div>
         <div>
           <p className="font-serif text-2xl leading-snug drop-shadow-sm">
             Un espace pour se poser, souffler et mieux se comprendre.

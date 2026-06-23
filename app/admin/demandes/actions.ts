@@ -3,14 +3,25 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { clienteName } from "@/lib/display";
+import { notifyBookingConfirmed } from "@/lib/notifications";
 
 export async function confirmBookingAction(id: string): Promise<{ error?: string }> {
   await requireAdmin();
   try {
-    await prisma.booking_requests.update({
+    const booking = await prisma.booking_requests.update({
       where: { id },
       data: { status: "confirmed", updated_at: new Date() },
+      include: { profiles: true, care_types: true },
     });
+    if (booking.profiles.email) {
+      await notifyBookingConfirmed({
+        clientEmail: booking.profiles.email,
+        clientName: clienteName(booking.profiles),
+        prestation: booking.care_types.nom,
+        date: booking.requested_date,
+      });
+    }
     revalidatePath("/admin/demandes");
     revalidatePath("/admin");
     return {};

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Photo à venir — CD soi-même">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2D9E4"/>
+      <stop offset="0.5" stop-color="#EAD7E6"/>
+      <stop offset="1" stop-color="#F4E6CF"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <ellipse cx="400" cy="430" rx="360" ry="360" fill="url(#halo)"/>
+  <!-- abstract figure -->
+  <g fill="#B14A78" opacity="0.16">
+    <circle cx="400" cy="370" r="120"/>
+    <path d="M210 760c0-120 85-210 190-210s190 90 190 210v40H210z"/>
+  </g>
+  <!-- leaf accent -->
+  <path d="M560 250c-70 10-120 70-120 150 80 0 140-60 140-140 0-4 0-7-1-10z" fill="#9C6B8E" opacity="0.25"/>
+  <text x="400" y="900" text-anchor="middle" font-family="Georgia, serif" font-size="46" fill="#3A2A33" opacity="0.85">CD soi-même</text>
+  <text x="400" y="945" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" letter-spacing="3" fill="#3A2A33" opacity="0.45">PHOTO À VENIR</text>
+</svg>

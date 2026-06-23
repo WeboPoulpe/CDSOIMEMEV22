@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireClient } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
+import { clienteName } from "@/lib/display";
+import { notifyBookingReceived } from "@/lib/notifications";
 
 export async function createBookingRequestAction(input: {
   careTypeId: string;
@@ -32,6 +34,15 @@ export async function createBookingRequestAction(input: {
       notes: input.notes?.trim() || null,
     },
   });
+  if (profile.email) {
+    await notifyBookingReceived({
+      clientEmail: profile.email,
+      clientName: clienteName(profile),
+      prestation: care.nom,
+      date,
+    });
+  }
+
   revalidatePath("/espace");
   revalidatePath("/admin/demandes");
   return { ok: true };

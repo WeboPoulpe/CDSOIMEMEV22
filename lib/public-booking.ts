@@ -2,6 +2,7 @@ import { z } from "zod";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { getAvailableSlots } from "@/lib/availability";
+import { notifyBookingReceived } from "@/lib/notifications";
 
 /** CORS headers so the booking widget can call the API from cdsoimeme.fr. */
 export const CORS_HEADERS: Record<string, string> = {
@@ -73,6 +74,13 @@ export async function createPublicBooking(
       status: "pending",
       notes: d.notes?.trim() || null,
     },
+  });
+
+  await notifyBookingReceived({
+    clientEmail: d.email,
+    clientName: `${d.prenom} ${d.nom}`.trim(),
+    prestation: care.nom,
+    date,
   });
 
   return { ok: true };

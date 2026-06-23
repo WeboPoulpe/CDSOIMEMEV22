@@ -191,3 +191,68 @@ export function adminNotificationEmailHtml(p: {
       para("Connectez-vous au dashboard pour valider ou refuser la demande."),
   });
 }
+
+/* ─────────── CD soi-même — emails de rendez-vous ─────────── */
+
+export function bookingReceivedClientHtml(p: {
+  businessName: string;
+  clientName: string;
+  prestation: string;
+  dateLabel: string;
+}): string {
+  return emailShell({
+    businessName: p.businessName,
+    badge: "Demande reçue",
+    accent: C.primary,
+    heading: `Merci ${p.clientName} 🌸`,
+    body:
+      para("Ta demande de rendez-vous a bien été reçue.") +
+      detailsBox([
+        ["Prestation", p.prestation],
+        ["Créneau souhaité", p.dateLabel],
+      ]) +
+      para("Charline te recontacte très vite pour confirmer. À très bientôt 🌿"),
+  });
+}
+
+export function bookingNotifyPraticienneHtml(p: {
+  clientName: string;
+  clientEmail: string;
+  prestation: string;
+  dateLabel: string;
+}): string {
+  return emailShell({
+    businessName: "CD soi-même",
+    badge: "Nouvelle demande",
+    accent: C.secondary,
+    heading: "Nouvelle demande de rendez-vous",
+    body:
+      para(`<strong>${p.clientName}</strong> (${p.clientEmail}) souhaite un rendez-vous.`) +
+      detailsBox([
+        ["Prestation", p.prestation],
+        ["Créneau souhaité", p.dateLabel],
+      ]) +
+      para("Connecte-toi à ton espace pour valider ou refuser cette demande."),
+  });
+}
+
+export function bookingConfirmedClientHtml(p: {
+  businessName: string;
+  clientName: string;
+  prestation: string;
+  dateLabel: string;
+}): string {
+  return emailShell({
+    businessName: p.businessName,
+    badge: "Rendez-vous confirmé",
+    accent: C.secondary,
+    heading: "C'est confirmé ✨",
+    body:
+      para(`${p.clientName}, ton rendez-vous est confirmé.`) +
+      detailsBox([
+        ["Prestation", p.prestation],
+        ["Le", p.dateLabel],
+      ]) +
+      para("Prends soin de toi d'ici là. À très vite 🌿"),
+  });
+}
