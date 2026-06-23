@@ -15,7 +15,8 @@ export default async function EspaceLayout({ children }: { children: React.React
       <header className="sticky top-0 z-50 border-b border-primary/10 bg-card/70 backdrop-blur">
         <div className="mx-auto w-full max-w-4xl px-5 py-3.5">
           <div className="flex items-center justify-between gap-4">
-            <span className="font-serif text-lg text-foreground">{theme.business.name}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.webp" alt={theme.business.name} className="h-9 w-auto" />
             <form action={logoutAction}>
               <Button type="submit" variant="ghost" size="sm">Partir en douceur</Button>
             </form>

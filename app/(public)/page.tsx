@@ -81,9 +81,9 @@ export default async function HomePage() {
       {/* À propos */}
       <section className="border-y border-primary/10 bg-muted/60 py-20">
         <div className="mx-auto grid max-w-5xl items-center gap-10 px-5 sm:grid-cols-[0.8fr_1.2fr]">
-          <div className="relative mx-auto h-44 w-44 overflow-hidden rounded-full ring-1 ring-primary/20 shadow-lg shadow-primary/10 sm:mx-0">
+          <div className="relative mx-auto h-56 w-56 overflow-hidden rounded-full ring-1 ring-primary/20 shadow-lg shadow-primary/10 sm:mx-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/charline.svg" alt="Charline" className="h-full w-full object-cover" />
+            <img src="/photos/charline-portrait-plantes.webp" alt="Charline" className="h-full w-full object-cover" />
           </div>
           <div>
             <p className="eyebrow">Faire connaissance</p>
@@ -133,8 +133,29 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Témoignages */}
+      {/* Mon univers */}
       <section className="border-y border-primary/10 bg-secondary/10 py-20">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">Mon univers</p>
+            <h2 className="mt-3 font-serif text-3xl text-foreground sm:text-4xl">Un cocon pour se déposer</h2>
+          </div>
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {["gallery-1", "gallery-2", "gallery-3", "gallery-4", "gallery-5", "gallery-6"].map((g, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={g}
+                src={`/photos/${g}.webp`}
+                alt=""
+                className={`w-full rounded-2xl object-cover ring-1 ring-primary/10 ${i % 5 === 0 ? "aspect-[4/5]" : "aspect-square"}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Témoignages */}
+      <section className="bg-background py-20">
         <div className="mx-auto max-w-5xl px-5">
           <div className="mx-auto max-w-2xl text-center">
             <p className="eyebrow">Ce qu'elles en disent</p>
@@ -153,7 +174,7 @@ export default async function HomePage() {
       </section>
 
       {/* CTA final */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate overflow-hidden border-t border-primary/10 bg-muted/50">
         <div className="aura-wrap" aria-hidden="true">
           <div className="aura-blob aura-2" />
         </div>

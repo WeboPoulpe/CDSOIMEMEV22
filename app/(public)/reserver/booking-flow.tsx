@@ -301,7 +301,7 @@ function VisualPanel({
   presta, date, time, step,
 }: { presta: Prestation | null; date: string | null; time: string | null; step: Step }) {
   // Tries the real portrait first; falls back to the branded SVG placeholder.
-  const [src, setSrc] = useState("/charline.jpg");
+  const [src, setSrc] = useState("/photos/charline-sourire.webp");
   return (
     <div className="relative hidden overflow-hidden rounded-[1.75rem] lg:block">
       {/* eslint-disable-next-line @next/next/no-img-element */}

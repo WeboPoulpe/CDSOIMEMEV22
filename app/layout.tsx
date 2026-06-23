@@ -21,6 +21,12 @@ const serif = Fraunces({
 export const metadata: Metadata = {
   title: theme.business.name,
   description: theme.business.tagline,
+  openGraph: {
+    title: theme.business.name,
+    description: theme.business.tagline,
+    images: ["/og-image.jpg"],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

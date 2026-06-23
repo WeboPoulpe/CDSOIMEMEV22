@@ -25,7 +25,7 @@
 export const theme = {
   business: {
     name: "CD soi-même",
-    logo: "/logo.svg",
+    logo: "/logo.webp",
     tagline:
       "Un lieu ressource pour prendre rendez-vous avec vous-même, à votre rythme, en toute sécurité.",
   },

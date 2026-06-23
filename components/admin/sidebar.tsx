@@ -26,8 +26,9 @@ export function Sidebar({ userName }: { userName: string }) {
   return (
     <nav className="flex h-full flex-col p-5">
       <div className="px-2">
-        <div className="font-serif text-xl tracking-tight text-foreground">CD soi-même</div>
-        <div className="eyebrow mt-1">Espace praticienne</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.webp" alt="CD soi-même" className="h-10 w-auto" />
+        <div className="eyebrow mt-2">Espace praticienne</div>
         <div className="hairline-gold mt-4 h-px w-12 opacity-60" />
       </div>
 

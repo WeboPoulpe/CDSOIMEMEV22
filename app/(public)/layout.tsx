@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { theme } from "@/lib/theme";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-50 border-b border-primary/8 bg-background/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-          <Link href="/" className="font-serif text-xl tracking-tight text-foreground">
-            {theme.business.name}
+      <header className="sticky top-0 z-50 border-b border-primary/10 bg-background/70 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
+          <Link href="/" aria-label="CD soi-même — accueil">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.webp" alt="CD soi-même" className="h-11 w-auto" />
           </Link>
           <nav className="flex items-center gap-5 text-sm">
             <Link href="/reserver" className="hidden text-foreground/70 transition-colors hover:text-foreground sm:inline">
@@ -25,9 +25,10 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
       <main className="flex-1">{children}</main>
 
-      <footer className="border-t border-primary/8">
-        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-5 py-10 text-sm text-foreground/55 sm:flex-row sm:items-center sm:justify-between">
-          <span className="font-serif text-base text-foreground">{theme.business.name}</span>
+      <footer className="border-t border-primary/10 bg-muted/40">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 py-10 text-sm text-foreground/55 sm:flex-row sm:justify-between">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.webp" alt="CD soi-même" className="h-10 w-auto opacity-90" />
           <span>Réflexologie · Énergétique · Naturopathie — Sainte-Savine</span>
         </div>
       </footer>

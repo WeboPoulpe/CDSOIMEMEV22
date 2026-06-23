@@ -12,8 +12,9 @@ export default function LoginPage() {
             ← Retour à l'accueil
           </Link>
 
-          <p className="font-serif text-3xl tracking-tight text-foreground">{theme.business.name}</p>
-          <p className="mt-1.5 text-foreground/55">Connecte-toi à ton espace.</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.webp" alt={theme.business.name} className="h-14 w-auto" />
+          <p className="mt-4 text-foreground/55">Connecte-toi à ton espace.</p>
           <div className="hairline-gold mt-5 h-px w-16 opacity-50" />
 
           <div className="mt-8">
