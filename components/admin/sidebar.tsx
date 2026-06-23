@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Inbox, CalendarDays, Sparkles, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, CalendarRange, Users, Inbox, CalendarDays, Sparkles, LogOut, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/admin/actions";
 
 export const ADMIN_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/admin", label: "Aperçu", icon: LayoutDashboard },
+  { href: "/admin/calendrier", label: "Calendrier", icon: CalendarRange },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
   { href: "/admin/demandes", label: "Demandes", icon: Inbox },
   { href: "/admin/seances", label: "Séances", icon: CalendarDays },
