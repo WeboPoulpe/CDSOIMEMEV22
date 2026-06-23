@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, CalendarRange, Users, Inbox, CalendarDays, Sparkles, Clock, LogOut, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, CalendarRange, Users, Inbox, CalendarDays, Sparkles, Clock, FileText, LogOut, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/admin/actions";
 
@@ -13,6 +13,7 @@ export const ADMIN_LINKS: { href: string; label: string; icon: LucideIcon }[] = 
   { href: "/admin/demandes", label: "Demandes", icon: Inbox },
   { href: "/admin/seances", label: "Séances", icon: CalendarDays },
   { href: "/admin/prestations", label: "Prestations", icon: Sparkles },
+  { href: "/admin/formulaire", label: "Formulaire", icon: FileText },
   { href: "/admin/horaires", label: "Horaires", icon: Clock },
 ];
 

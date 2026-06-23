@@ -135,9 +135,16 @@ model documents {
   profiles       profiles? @relation(fields: [cliente_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
+model app_settings {
+  key        String   @id
+  value      Json
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+}
+
 model form_responses {
   id                                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   client_id                         String   @db.Uuid
+  answers                           Json?
   nom                               String
   prenom                            String
   email                             String

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { clienteName, formatDateTime, bookingStatusOf } from "@/lib/display";
+import { answersOf } from "@/lib/questionnaire";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReplyComposer } from "./reply-composer";
@@ -103,14 +104,12 @@ export default async function ClienteDetailPage({
         <CardContent>
           {questionnaire ? (
             <div className="grid gap-3 text-sm sm:grid-cols-2">
-              <Field label="Raison du rendez-vous" value={questionnaire.raison_rdv} />
-              <Field label="Objectif" value={questionnaire.objectif} />
-              <Field label="Causes" value={questionnaire.causes} />
-              <Field label="Conséquences" value={questionnaire.consequences} />
-              <Field label="Obstacles" value={questionnaire.obstacles} />
-              <Field label="Ressources" value={questionnaire.ressources} />
-              <Field label="Besoins" value={questionnaire.besoins} />
-              <Field label="Échéance" value={questionnaire.echeance} />
+              {answersOf(questionnaire as unknown as Record<string, unknown>).map((a, i) => (
+                <div key={i}>
+                  <p className="text-foreground/55">{a.label}</p>
+                  <p className="mt-0.5 whitespace-pre-wrap">{a.value}</p>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-sm text-foreground/50">
@@ -173,12 +172,3 @@ export default async function ClienteDetailPage({
   );
 }
 
-function Field({ label, value }: { label: string; value: string | null }) {
-  if (!value) return null;
-  return (
-    <div>
-      <p className="text-foreground/55">{label}</p>
-      <p className="mt-0.5 whitespace-pre-wrap">{value}</p>
-    </div>
-  );
-}
