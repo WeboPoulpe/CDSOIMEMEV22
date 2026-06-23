@@ -33,19 +33,25 @@ export default async function PrestationsPage() {
           {prestations.map((p) => (
             <div
               key={p.id}
-              className={`rounded-2xl border border-primary/10 bg-card/70 p-6 backdrop-blur-sm transition-colors ${p.actif ? "" : "opacity-60"}`}
+              className={`overflow-hidden rounded-2xl border border-primary/10 bg-card/70 backdrop-blur-sm transition-colors ${p.actif ? "" : "opacity-60"}`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="font-serif text-lg text-foreground">{p.nom}</h2>
-                  {!p.actif && <Badge variant="outline" className="mt-1">Inactive</Badge>}
+              {p.image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={p.image_url} alt={p.nom} className="h-36 w-full object-cover" />
+              )}
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="font-serif text-lg text-foreground">{p.nom}</h2>
+                    {!p.actif && <Badge variant="outline" className="mt-1">Inactive</Badge>}
+                  </div>
+                  <CardActions id={p.id} nom={p.nom} actif={p.actif ?? true} />
                 </div>
-                <CardActions id={p.id} nom={p.nom} actif={p.actif ?? true} />
-              </div>
-              {p.description && <p className="mt-2 text-sm text-foreground/60">{p.description}</p>}
-              <div className="mt-3 flex gap-4 text-sm text-foreground/70">
-                <span>{p.duree_minutes ?? 60} min</span>
-                <span className="font-medium text-primary">{formatPrice(p.prix)}</span>
+                {p.description && <p className="mt-2 text-sm text-foreground/60">{p.description}</p>}
+                <div className="mt-3 flex gap-4 text-sm text-foreground/70">
+                  <span>{p.duree_minutes ?? 60} min</span>
+                  <span className="font-medium text-primary">{formatPrice(p.prix)}</span>
+                </div>
               </div>
             </div>
           ))}

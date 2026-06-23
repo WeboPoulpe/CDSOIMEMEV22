@@ -39,6 +39,7 @@ export async function createPrestationAction(_prev: State, formData: FormData): 
       prix: d.prix,
       ordre: d.ordre,
       actif: formData.get("actif") === "on",
+      image_url: String(formData.get("image_url") || "") || null,
     },
   });
   revalidatePath("/admin/prestations");
@@ -59,6 +60,7 @@ export async function updatePrestationAction(id: string, _prev: State, formData:
       prix: d.prix,
       ordre: d.ordre,
       actif: formData.get("actif") === "on",
+      image_url: String(formData.get("image_url") || "") || null,
     },
   });
   revalidatePath("/admin/prestations");

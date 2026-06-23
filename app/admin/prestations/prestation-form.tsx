@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ImagePicker } from "./image-picker";
 
 type State = { error?: string } | undefined;
 
@@ -15,6 +16,7 @@ export type PrestationInitial = {
   prix: number;
   ordre: number;
   actif: boolean;
+  image: string;
 };
 
 export function PrestationForm({
@@ -30,6 +32,11 @@ export function PrestationForm({
 
   return (
     <form action={formAction} className="max-w-xl space-y-5">
+      <div className="space-y-2">
+        <Label>Photo</Label>
+        <ImagePicker name="image_url" initial={initial?.image} />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="nom">Nom de la prestation</Label>
         <Input id="nom" name="nom" defaultValue={initial?.nom} required />

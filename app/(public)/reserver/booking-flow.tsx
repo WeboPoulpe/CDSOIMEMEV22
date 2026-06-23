@@ -18,6 +18,7 @@ type Prestation = {
   description: string | null;
   dureeMinutes: number | null;
   prix: number | null;
+  imageUrl: string | null;
 };
 
 type Step = "prestation" | "creneau" | "infos" | "done";
@@ -73,13 +74,17 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
                     key={p.id}
                     type="button"
                     onClick={() => { setPresta(p); setDate(null); setTime(null); setStep("creneau"); }}
-                    className="group flex w-full items-center justify-between rounded-2xl border border-primary/12 bg-card/60 px-5 py-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30"
+                    className="group flex w-full items-center gap-4 rounded-2xl border border-primary/12 bg-card/60 px-4 py-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-primary/30"
                   >
-                    <span>
+                    {p.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={p.imageUrl} alt="" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                    )}
+                    <span className="min-w-0 flex-1">
                       <span className="block font-serif text-lg text-foreground">{p.nom}</span>
-                      {p.description && <span className="mt-0.5 block text-sm text-foreground/55">{p.description}</span>}
+                      {p.description && <span className="mt-0.5 block truncate text-sm text-foreground/55">{p.description}</span>}
                     </span>
-                    <span className="ml-4 shrink-0 text-right text-sm text-foreground/70">
+                    <span className="ml-2 shrink-0 text-right text-sm text-foreground/70">
                       {p.dureeMinutes ? <span className="block">{p.dureeMinutes} min</span> : null}
                       {p.prix != null ? <span className="block font-medium text-primary">{p.prix} €</span> : null}
                     </span>

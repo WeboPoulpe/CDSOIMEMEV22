@@ -36,6 +36,7 @@ export default async function EditPrestationPage({
           prix: p.prix != null ? Number(p.prix) : 70,
           ordre: p.ordre ?? 0,
           actif: p.actif ?? true,
+          image: p.image_url ?? "",
         }}
       />
     </div>
