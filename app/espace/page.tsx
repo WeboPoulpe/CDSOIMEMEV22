@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { CalendarHeart, FileText, MessageCircle } from "lucide-react";
 import { requireClient } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
 import { clienteName, formatDateTime } from "@/lib/display";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader, SectionCard, EmptyState } from "@/components/admin/ui";
 
 export default async function EspacePage() {
   const session = await requireClient();
@@ -11,21 +12,20 @@ export default async function EspacePage() {
 
   if (!profile) {
     return (
-      <div className="space-y-4">
-        <h1 className="font-display text-3xl">Bienvenue ✨</h1>
-        <p className="text-foreground/60">
-          Votre espace est en cours de configuration. Votre praticienne va bientôt le compléter.
-        </p>
+      <div>
+        <PageHeader title="Bienvenue ✨" subtitle="Ton espace de soin et d'accompagnement." />
+        <SectionCard>
+          <p className="text-foreground/60">
+            Ton espace est en cours de configuration. Charline va bientôt le compléter.
+          </p>
+        </SectionCard>
       </div>
     );
   }
 
   const now = new Date();
   const [seances, demandes] = await Promise.all([
-    prisma.seances.findMany({
-      where: { cliente_id: profile.id, date: { gte: now } },
-      orderBy: { date: "asc" },
-    }),
+    prisma.seances.findMany({ where: { cliente_id: profile.id, date: { gte: now } }, orderBy: { date: "asc" } }),
     prisma.booking_requests.findMany({
       where: { cliente_id: profile.id, status: { in: ["pending", "confirmed"] }, requested_date: { gte: now } },
       orderBy: { requested_date: "asc" },
@@ -34,49 +34,48 @@ export default async function EspacePage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-3xl">Bonjour {profile.prenom ?? clienteName(profile)} ✨</h1>
-        <p className="text-foreground/60">Votre espace de soin et d'accompagnement.</p>
-      </div>
+    <div>
+      <PageHeader
+        title={`Bonjour ${profile.prenom ?? clienteName(profile)} ✨`}
+        subtitle="Ton espace de soin et d'accompagnement."
+      />
 
-      <Card className="rounded-lg">
-        <CardHeader><CardTitle>Mes prochaines séances</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
+      <SectionCard title="Mes prochaines séances">
+        <div className="space-y-2">
           {seances.length === 0 && demandes.length === 0 && (
-            <p className="text-foreground/50">Aucune séance à venir pour le moment.</p>
+            <EmptyState>Aucune séance à venir pour le moment.</EmptyState>
           )}
           {seances.map((s) => (
-            <div key={s.id} className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-3">
-              <span className="font-medium">{s.type}</span>
+            <div key={s.id} className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3">
+              <span className="font-medium text-foreground">{s.type}</span>
               <span className="text-sm text-foreground/70">{formatDateTime(s.date)}</span>
             </div>
           ))}
           {demandes.map((d) => (
-            <div key={d.id} className="flex items-center justify-between rounded-lg border border-dashed border-muted px-4 py-3">
-              <span className="font-medium">{d.care_types.nom}</span>
+            <div key={d.id} className="flex items-center justify-between rounded-xl border border-dashed border-primary/20 px-4 py-3">
+              <span className="font-medium text-foreground">{d.care_types.nom}</span>
               <span className="text-sm text-foreground/55">
                 {formatDateTime(d.requested_date)} · {d.status === "confirmed" ? "confirmé" : "en attente"}
               </span>
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </SectionCard>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link href="/espace/documents">
-          <Card className="rounded-lg transition-shadow hover:shadow-md">
-            <CardHeader><CardTitle className="text-base">Mes documents</CardTitle></CardHeader>
-            <CardContent><p className="text-sm text-foreground/55">Consulter les documents partagés</p></CardContent>
-          </Card>
-        </Link>
-        <Link href="/espace/messagerie">
-          <Card className="rounded-lg transition-shadow hover:shadow-md">
-            <CardHeader><CardTitle className="text-base">Messagerie</CardTitle></CardHeader>
-            <CardContent><p className="text-sm text-foreground/55">Échanger avec votre praticienne</p></CardContent>
-          </Card>
-        </Link>
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <Tile href="/espace/reserver" icon={CalendarHeart} label="Prendre rendez-vous" tone="bg-primary/12 text-primary" />
+        <Tile href="/espace/documents" icon={FileText} label="Mes documents" tone="bg-secondary/15 text-secondary" />
+        <Tile href="/espace/messagerie" icon={MessageCircle} label="Messagerie" tone="bg-[#C9A24B]/18 text-[#A8842F]" />
       </div>
     </div>
+  );
+}
+
+function Tile({ href, icon: Icon, label, tone }: { href: string; icon: typeof CalendarHeart; label: string; tone: string }) {
+  return (
+    <Link href={href} className="rounded-2xl border border-primary/10 bg-card/70 p-5 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/25">
+      <span className={`mb-3 grid h-10 w-10 place-items-center rounded-full ${tone}`}><Icon className="h-5 w-5" /></span>
+      <p className="font-serif text-lg text-foreground">{label}</p>
+    </Link>
   );
 }

@@ -1,8 +1,7 @@
 import { requireClient } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
-import { formatDate } from "@/lib/display";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader, SectionCard, EmptyState } from "@/components/admin/ui";
 
 export default async function EspaceDocumentsPage() {
   const session = await requireClient();
@@ -16,32 +15,28 @@ export default async function EspaceDocumentsPage() {
     : [];
 
   return (
-    <div className="space-y-6">
-      <h1 className="font-display text-3xl">Mes documents</h1>
-
-      <Card className="rounded-lg">
-        <CardHeader><CardTitle>{documents.length} document(s) partagé(s)</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-          {documents.length === 0 && (
-            <p className="text-foreground/50">Aucun document partagé pour le moment.</p>
-          )}
+    <div>
+      <PageHeader title="Mes documents" subtitle={`${documents.length} document(s) partagé(s)`} />
+      <SectionCard>
+        <div className="space-y-2">
+          {documents.length === 0 && <EmptyState>Aucun document partagé pour le moment.</EmptyState>}
           {documents.map((d) => (
             <a
               key={d.id}
               href={d.url}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-3 hover:bg-muted"
+              className="flex items-center justify-between rounded-xl bg-muted/40 px-4 py-3 transition-colors hover:bg-muted"
             >
               <div>
-                <p className="font-medium">{d.titre}</p>
+                <p className="font-medium text-foreground">{d.titre}</p>
                 {d.categorie && <p className="text-sm text-foreground/55">{d.categorie}</p>}
               </div>
               <span className="text-sm text-primary">Ouvrir →</span>
             </a>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </SectionCard>
     </div>
   );
 }
