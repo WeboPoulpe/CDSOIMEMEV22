@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { saveQuestionnaire, type QDef } from "@/lib/questionnaire";
 import { getEmailService, questionnaireInviteHtml } from "@/lib/integrations/email";
+import { getEmailMessages } from "@/lib/emails-settings";
 
 export async function saveQuestionnaireAction(def: QDef): Promise<{ error?: string }> {
   await requireAdmin();
@@ -52,11 +53,12 @@ export async function preregisterAndSendAction(input: {
   const url = `${base.replace(/\/$/, "")}/questionnaire/${token}`;
   try {
     const mail = getEmailService({ fromEmail: process.env.AUTH_EMAIL_FROM?.trim() || "cdsoimeme@gmail.com", fromName: "CD soi-même" });
+    const msg = (await getEmailMessages()).questionnaire;
     await mail.send({
       to: email,
       toName: [input.prenom, input.nom].filter(Boolean).join(" ") || undefined,
-      subject: "Ton questionnaire — CD soi-même",
-      html: questionnaireInviteHtml({ businessName: "CD soi-même", url, name: input.prenom ?? "" }),
+      subject: msg.subject,
+      html: questionnaireInviteHtml({ businessName: "CD soi-même", url, name: input.prenom ?? "", intro: msg.intro }),
     });
   } catch (e) {
     console.error("⚠️ email pré-inscription:", e);

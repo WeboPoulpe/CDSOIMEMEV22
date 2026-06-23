@@ -6,6 +6,7 @@ import {
   bookingNotifyPraticienneHtml,
   bookingConfirmedClientHtml,
 } from "@/lib/integrations/email";
+import { getEmailMessages } from "@/lib/emails-settings";
 
 const BRAND = "CD soi-même";
 const FROM = process.env.AUTH_EMAIL_FROM?.trim() || "cdsoimeme@gmail.com";
@@ -25,12 +26,13 @@ export async function notifyBookingReceived(p: {
 }): Promise<void> {
   const email = getEmailService({ fromEmail: FROM, fromName: BRAND });
   const dateLabel = rdvDateLabel(p.date);
+  const msg = (await getEmailMessages()).booking_received;
   try {
     await email.send({
       to: p.clientEmail,
       toName: p.clientName,
-      subject: `Ta demande de rendez-vous — ${BRAND}`,
-      html: bookingReceivedClientHtml({ businessName: BRAND, clientName: p.clientName, prestation: p.prestation, dateLabel }),
+      subject: msg.subject,
+      html: bookingReceivedClientHtml({ businessName: BRAND, clientName: p.clientName, prestation: p.prestation, dateLabel, intro: msg.intro }),
     });
   } catch (e) {
     console.error("⚠️ email accusé cliente:", e);
@@ -54,12 +56,13 @@ export async function notifyBookingConfirmed(p: {
   date: Date;
 }): Promise<void> {
   const email = getEmailService({ fromEmail: FROM, fromName: BRAND });
+  const msg = (await getEmailMessages()).booking_confirmed;
   try {
     await email.send({
       to: p.clientEmail,
       toName: p.clientName,
-      subject: `Rendez-vous confirmé — ${BRAND}`,
-      html: bookingConfirmedClientHtml({ businessName: BRAND, clientName: p.clientName, prestation: p.prestation, dateLabel: rdvDateLabel(p.date) }),
+      subject: msg.subject,
+      html: bookingConfirmedClientHtml({ businessName: BRAND, clientName: p.clientName, prestation: p.prestation, dateLabel: rdvDateLabel(p.date), intro: msg.intro }),
     });
   } catch (e) {
     console.error("⚠️ email confirmation cliente:", e);

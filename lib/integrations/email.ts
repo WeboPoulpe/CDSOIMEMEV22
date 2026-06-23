@@ -199,6 +199,7 @@ export function bookingReceivedClientHtml(p: {
   clientName: string;
   prestation: string;
   dateLabel: string;
+  intro?: string;
 }): string {
   return emailShell({
     businessName: p.businessName,
@@ -206,7 +207,7 @@ export function bookingReceivedClientHtml(p: {
     accent: C.primary,
     heading: `Merci ${p.clientName} 🌸`,
     body:
-      para("Ta demande de rendez-vous a bien été reçue.") +
+      para(p.intro || "Ta demande de rendez-vous a bien été reçue.") +
       detailsBox([
         ["Prestation", p.prestation],
         ["Créneau souhaité", p.dateLabel],
@@ -241,6 +242,7 @@ export function bookingConfirmedClientHtml(p: {
   clientName: string;
   prestation: string;
   dateLabel: string;
+  intro?: string;
 }): string {
   return emailShell({
     businessName: p.businessName,
@@ -248,7 +250,7 @@ export function bookingConfirmedClientHtml(p: {
     accent: C.secondary,
     heading: "C'est confirmé ✨",
     body:
-      para(`${p.clientName}, ton rendez-vous est confirmé.`) +
+      para(p.intro || `${p.clientName}, ton rendez-vous est confirmé.`) +
       detailsBox([
         ["Prestation", p.prestation],
         ["Le", p.dateLabel],
@@ -278,6 +280,7 @@ export function questionnaireInviteHtml(p: {
   businessName: string;
   url: string;
   name?: string;
+  intro?: string;
 }): string {
   return emailShell({
     businessName: p.businessName,
@@ -285,7 +288,7 @@ export function questionnaireInviteHtml(p: {
     accent: C.primary,
     heading: p.name ? `Bonjour ${p.name} 🌸` : "Ton questionnaire",
     body:
-      para("Avant notre rendez-vous, peux-tu prendre un moment pour remplir ce court questionnaire ? Il m'aide à préparer au mieux ton accompagnement.") +
+      para(p.intro || "Avant notre rendez-vous, peux-tu prendre un moment pour remplir ce court questionnaire ? Il m'aide à préparer au mieux ton accompagnement.") +
       `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 16px;"><tr><td style="border-radius:999px;background:${C.primary};"><a href="${p.url}" style="display:inline-block;padding:13px 26px;font:600 15px/1 ${SANS};color:#ffffff;text-decoration:none;border-radius:999px;">Remplir le questionnaire</a></td></tr></table>` +
       para(`<span style="color:${SUBTLE};font-size:13px;">Ce lien t'est personnel et reste valable 14 jours.</span>`),
   });

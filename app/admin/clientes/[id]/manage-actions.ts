@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SEANCE_TYPES } from "@/lib/constants";
 import { getEmailService, questionnaireInviteHtml } from "@/lib/integrations/email";
+import { getEmailMessages } from "@/lib/emails-settings";
 
 export async function addSeanceAction(
   clienteId: string,
@@ -99,11 +100,12 @@ export async function sendQuestionnaireAction(
   const url = `${base.replace(/\/$/, "")}/questionnaire/${token}`;
   try {
     const mail = getEmailService({ fromEmail: process.env.AUTH_EMAIL_FROM?.trim() || "cdsoimeme@gmail.com", fromName: "CD soi-même" });
+    const msg = (await getEmailMessages()).questionnaire;
     await mail.send({
       to: cliente.email,
       toName: [cliente.prenom, cliente.nom].filter(Boolean).join(" ") || undefined,
-      subject: "Ton questionnaire — CD soi-même",
-      html: questionnaireInviteHtml({ businessName: "CD soi-même", url, name: cliente.prenom ?? "" }),
+      subject: msg.subject,
+      html: questionnaireInviteHtml({ businessName: "CD soi-même", url, name: cliente.prenom ?? "", intro: msg.intro }),
     });
   } catch (e) {
     console.error("⚠️ email questionnaire:", e);
