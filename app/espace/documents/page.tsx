@@ -2,6 +2,7 @@ import { requireClient } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
 import { PageHeader, SectionCard, EmptyState } from "@/components/admin/ui";
+import { ClientDocumentUpload } from "./upload";
 
 export default async function EspaceDocumentsPage() {
   const session = await requireClient();
@@ -15,8 +16,14 @@ export default async function EspaceDocumentsPage() {
     : [];
 
   return (
-    <div>
-      <PageHeader title="Mes documents" subtitle={`${documents.length} document(s) partagé(s)`} />
+    <div className="space-y-6">
+      <PageHeader title="Mes documents" subtitle={`${documents.length} document(s)`} />
+
+      <SectionCard title="Déposer un document">
+        <p className="mb-3 text-sm text-foreground/55">Partage un document avec ta praticienne (PDF, photo…).</p>
+        <ClientDocumentUpload />
+      </SectionCard>
+
       <SectionCard>
         <div className="space-y-2">
           {documents.length === 0 && <EmptyState>Aucun document partagé pour le moment.</EmptyState>}

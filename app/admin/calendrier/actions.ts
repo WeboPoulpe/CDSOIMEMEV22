@@ -12,20 +12,25 @@ function refreshPlanning() {
 }
 
 export async function createSeanceAction(input: {
-  clienteId: string;
+  clienteId?: string;
+  nomExterne?: string;
+  emailExterne?: string;
   type: string;
   dateTime: string;
   lieu?: string;
   notes?: string;
 }): Promise<{ error?: string }> {
   await requireAdmin();
-  if (!input.clienteId) return { error: "Choisis une cliente." };
+  const external = !input.clienteId;
+  if (external && !input.nomExterne?.trim()) return { error: "Choisis une cliente ou saisis un nom." };
   if (!(SEANCE_TYPES as readonly string[]).includes(input.type)) return { error: "Type de séance invalide." };
   const date = new Date(input.dateTime);
   if (isNaN(date.getTime())) return { error: "Date et heure invalides." };
   await prisma.seances.create({
     data: {
-      cliente_id: input.clienteId,
+      cliente_id: input.clienteId || null,
+      nom_externe: external ? input.nomExterne?.trim() || null : null,
+      email_externe: external ? input.emailExterne?.trim() || null : null,
       type: input.type,
       date,
       lieu: input.lieu?.trim() || null,

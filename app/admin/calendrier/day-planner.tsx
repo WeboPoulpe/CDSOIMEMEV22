@@ -82,7 +82,10 @@ function Row({
 }
 
 function AddSeance({ date, clientes, onDone }: { date: string; clientes: Cliente[]; onDone: () => void }) {
+  const [mode, setMode] = useState<"cliente" | "externe">(clientes.length ? "cliente" : "externe");
   const [clienteId, setClienteId] = useState(clientes[0]?.id ?? "");
+  const [nomExterne, setNomExterne] = useState("");
+  const [emailExterne, setEmailExterne] = useState("");
   const [type, setType] = useState<string>(SEANCE_TYPES[0]);
   const [time, setTime] = useState("09:00");
   const [lieu, setLieu] = useState("");
@@ -90,16 +93,32 @@ function AddSeance({ date, clientes, onDone }: { date: string; clientes: Cliente
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
+  const canSubmit = mode === "cliente" ? !!clienteId : !!nomExterne.trim();
+
   return (
     <details className="rounded-xl border border-primary/12 p-3 [&_summary]:cursor-pointer">
       <summary className="flex items-center gap-2 text-sm font-medium text-primary"><Plus className="h-4 w-4" /> Ajouter une séance</summary>
       <div className="mt-3 space-y-3">
-        <div className="space-y-1.5">
-          <Label>Cliente</Label>
-          <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
-            {clientes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+        <div className="flex gap-1 rounded-lg bg-muted/50 p-1 text-sm">
+          <button type="button" onClick={() => setMode("cliente")} className={`flex-1 rounded-md px-2 py-1.5 ${mode === "cliente" ? "bg-card font-medium shadow-sm" : "text-foreground/60"}`}>Cliente inscrite</button>
+          <button type="button" onClick={() => setMode("externe")} className={`flex-1 rounded-md px-2 py-1.5 ${mode === "externe" ? "bg-card font-medium shadow-sm" : "text-foreground/60"}`}>Personne externe</button>
         </div>
+
+        {mode === "cliente" ? (
+          <div className="space-y-1.5">
+            <Label>Cliente</Label>
+            <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+              {clientes.length === 0 && <option value="">Aucune cliente</option>}
+              {clientes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5"><Label>Nom</Label><Input value={nomExterne} onChange={(e) => setNomExterne(e.target.value)} placeholder="Prénom Nom" /></div>
+            <div className="space-y-1.5"><Label>Email (optionnel)</Label><Input type="email" value={emailExterne} onChange={(e) => setEmailExterne(e.target.value)} /></div>
+          </div>
+        )}
+
         <div className="space-y-1.5">
           <Label>Prestation</Label>
           <select value={type} onChange={(e) => setType(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
@@ -112,9 +131,13 @@ function AddSeance({ date, clientes, onDone }: { date: string; clientes: Cliente
         </div>
         <div className="space-y-1.5"><Label>Notes</Label><Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} /></div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <Button type="button" size="sm" disabled={pending || !clienteId}
+        <Button type="button" size="sm" disabled={pending || !canSubmit}
           onClick={() => { setError(null); start(async () => {
-            const res = await createSeanceAction({ clienteId, type, dateTime: `${date}T${time}`, lieu, notes });
+            const res = await createSeanceAction(
+              mode === "cliente"
+                ? { clienteId, type, dateTime: `${date}T${time}`, lieu, notes }
+                : { nomExterne, emailExterne, type, dateTime: `${date}T${time}`, lieu, notes }
+            );
             if (res?.error) setError(res.error); else onDone();
           }); }}>
           {pending ? "Ajout…" : "Planifier la séance"}
