@@ -2,6 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { clienteName, formatDateTime } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/admin/ui";
 
 export default async function SeancesPage() {
   await requireAdmin();
@@ -16,7 +17,7 @@ export default async function SeancesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-3xl">Séances</h1>
+      <PageHeader title="Séances" subtitle={`${upcoming.length} à venir`} />
 
       <Card className="rounded-lg">
         <CardHeader><CardTitle>À venir ({upcoming.length})</CardTitle></CardHeader>

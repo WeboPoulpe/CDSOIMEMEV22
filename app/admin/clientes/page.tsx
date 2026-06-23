@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { clienteName } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { PageHeader } from "@/components/admin/ui";
 
 export default async function ClientesPage() {
   await requireAdmin();
@@ -13,12 +14,15 @@ export default async function ClientesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">Clientes</h1>
-        <Link href="/admin/clientes/new" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground">
-          Ajouter une cliente
-        </Link>
-      </div>
+      <PageHeader
+        title="Clientes"
+        subtitle={`${clientes.length} personne(s) accompagnée(s)`}
+        action={
+          <Link href="/admin/clientes/new" className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-primary/20 transition-transform hover:-translate-y-0.5">
+            Ajouter une cliente
+          </Link>
+        }
+      />
 
       <Card className="rounded-lg">
         <CardHeader>

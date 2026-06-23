@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/admin/ui";
 
 export default async function PrestationsPage() {
   await requireAdmin();
@@ -12,7 +13,7 @@ export default async function PrestationsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-3xl">Prestations</h1>
+      <PageHeader title="Prestations" subtitle="Tes soins et accompagnements" />
 
       <div className="grid gap-4 sm:grid-cols-2">
         {prestations.map((p) => (

@@ -4,6 +4,7 @@ import { clienteName, formatDateTime, bookingStatusOf } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DemandeActions } from "./demande-actions";
+import { PageHeader } from "@/components/admin/ui";
 
 export default async function DemandesPage() {
   await requireAdmin();
@@ -16,7 +17,7 @@ export default async function DemandesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-display text-3xl">Demandes de rendez-vous</h1>
+      <PageHeader title="Demandes de rendez-vous" subtitle={`${pending.length} à traiter`} />
 
       <Card className="rounded-lg">
         <CardHeader><CardTitle>À traiter ({pending.length})</CardTitle></CardHeader>

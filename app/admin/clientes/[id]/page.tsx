@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ReplyComposer } from "./reply-composer";
 import { AddSeanceForm, AddDocumentForm } from "./manage-forms";
+import { PageHeader } from "@/components/admin/ui";
 
 export default async function ClienteDetailPage({
   params,
@@ -31,12 +32,11 @@ export default async function ClienteDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">{clienteName(cliente)}</h1>
-        <Link href="/admin/clientes" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Toutes les clientes
-        </Link>
-      </div>
+      <PageHeader
+        title={clienteName(cliente)}
+        subtitle={[cliente.email, cliente.ville].filter(Boolean).join(" · ") || undefined}
+        action={<Link href="/admin/clientes" className="text-sm text-foreground/55 hover:text-foreground">← Toutes les clientes</Link>}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="rounded-lg lg:col-span-1">
