@@ -1,30 +1,25 @@
 import Link from "next/link";
-import { Sparkles, Heart, Leaf, Footprints } from "lucide-react";
+import { Sparkles, Quote } from "lucide-react";
+import { prisma } from "@/lib/db";
+import { formatPrice } from "@/lib/display";
 
-const prestations = [
-  {
-    icon: Footprints,
-    title: "Réflexologie",
-    text: "Une approche corporelle douce pour soutenir l'équilibre du corps, libérer les tensions et accompagner ce qui a besoin de se dénouer.",
-  },
-  {
-    icon: Heart,
-    title: "Libération émotionnelle",
-    text: "Un massage profond du ventre suivi d'un bain sonore, pour relâcher ce que le corps a retenu, parfois depuis longtemps.",
-  },
-  {
-    icon: Leaf,
-    title: "Massage bien-être",
-    text: "Un massage unique, adapté à l'instant, guidé par l'écoute de ton corps et de ses besoins.",
-  },
-  {
-    icon: Sparkles,
-    title: "Coaching psycho-émotionnel",
-    text: "Un accompagnement pour mettre du sens sur ce que tu traverses et avancer avec plus de conscience et d'alignement.",
-  },
+export const dynamic = "force-dynamic";
+
+const VALUES = ["Douceur", "Écoute", "Sécurité"];
+
+const TEMOIGNAGES = [
+  { quote: "Un moment suspendu — j'en suis ressortie plus légère et apaisée.", name: "Marie" },
+  { quote: "Charline crée un espace d'une douceur rare. On se sent vraiment écoutée.", name: "Corène" },
+  { quote: "Un accompagnement qui m'a aidée à y voir plus clair, à mon rythme.", name: "Christelle" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const prestations = await prisma.care_types.findMany({
+    where: { actif: true },
+    orderBy: [{ ordre: "asc" }, { nom: "asc" }],
+    select: { id: true, nom: true, description: true, duree_minutes: true, prix: true, image_url: true },
+  });
+
   return (
     <div>
       {/* Hero */}
@@ -35,77 +30,123 @@ export default function HomePage() {
           <div className="aura-blob aura-3" />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-3xl px-5 py-28 text-center sm:py-36">
-          <p className="eyebrow">Réflexologie · Énergétique · Naturopathie</p>
-          <h1 className="mt-6 font-serif text-4xl leading-[1.1] tracking-tight text-foreground sm:text-6xl">
-            Un espace pour se poser,
-            <br />
-            souffler et <em className="italic text-primary">mieux se comprendre</em>.
-          </h1>
-          <p className="mx-auto mt-7 max-w-xl text-lg text-foreground/65">
-            Ici, il n'y a rien à réussir. Tu es accueillie telle que tu es — à ton rythme, en
-            toute sécurité.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/reserver"
-              className="rounded-full bg-primary px-8 py-3.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5"
-            >
-              Prendre rendez-vous
-            </Link>
-            <Link href="#accompagnements" className="text-sm font-medium text-foreground/70 underline-offset-4 hover:text-foreground hover:underline">
-              Découvrir les accompagnements
-            </Link>
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
+          <div>
+            <p className="eyebrow">Réflexologie · Énergétique · Naturopathie</p>
+            <h1 className="mt-6 font-serif text-4xl leading-[1.08] tracking-tight text-foreground sm:text-6xl">
+              Un espace pour se poser, souffler et <em className="italic text-primary">mieux se comprendre</em>.
+            </h1>
+            <p className="mt-7 max-w-lg text-lg text-foreground/65">
+              Ici, il n'y a rien à réussir. Tu es accueillie telle que tu es — à ton rythme, en
+              toute sécurité.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Link href="/reserver" className="rounded-full bg-primary px-8 py-3.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5">
+                Prendre rendez-vous
+              </Link>
+              <Link href="#accompagnements" className="text-sm font-medium text-foreground/70 underline-offset-4 hover:text-foreground hover:underline">
+                Découvrir les accompagnements
+              </Link>
+            </div>
+            <div className="mt-10 flex items-center gap-3 text-sm text-foreground/55">
+              {VALUES.map((v, i) => (
+                <span key={v} className="flex items-center gap-3">
+                  {i > 0 && <span className="h-1 w-1 rounded-full bg-[#C9A24B]" />}
+                  {v}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="overflow-hidden rounded-[2rem] shadow-2xl shadow-primary/15 ring-1 ring-primary/15">
+              <video
+                className="aspect-[4/5] h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster="/charline.svg"
+              >
+                <source src="/video/tu_peux_faire_un_mix_des_deux.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div className="absolute -bottom-4 left-6 rounded-full bg-card/90 px-5 py-2.5 text-sm font-medium text-foreground shadow-lg ring-1 ring-primary/10 backdrop-blur">
+              Sainte-Savine · sur rendez-vous
+            </div>
           </div>
         </div>
       </section>
 
       {/* À propos */}
-      <section className="mx-auto max-w-3xl px-5 py-16 text-center">
-        <span className="mx-auto mb-6 grid h-20 w-20 place-items-center rounded-full bg-muted font-serif text-2xl text-[#B98A2E]">
-          CD
-        </span>
-        <p className="eyebrow">Faire connaissance</p>
-        <p className="mt-4 font-serif text-2xl leading-relaxed text-foreground/85 sm:text-[1.7rem]">
-          Je suis Charline. J'accompagne les femmes qui ressentent le besoin de se déposer, de
-          s'écouter et de se reconnecter à elles-mêmes.
-        </p>
-        <p className="mx-auto mt-5 max-w-xl text-foreground/60">
-          Un espace sans jugement, fait de douceur, d'écoute et de sécurité — où tu choisis de
-          prendre soin de toi.
-        </p>
-      </section>
-
-      {/* Accompagnements */}
-      <section id="accompagnements" className="scroll-mt-20 bg-muted/30 py-20">
-        <div className="mx-auto max-w-5xl px-5">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow">Mes accompagnements</p>
-            <h2 className="mt-3 font-serif text-3xl text-foreground sm:text-4xl">
-              Chaque chemin se construit avec toi
-            </h2>
-            <p className="mt-3 text-foreground/60">
-              En respectant ton histoire, ton rythme et tes besoins du moment.
+      <section className="mx-auto max-w-5xl px-5 py-16">
+        <div className="grid items-center gap-10 rounded-[2rem] border border-primary/10 bg-card/60 p-8 backdrop-blur-sm sm:grid-cols-[0.8fr_1.2fr] sm:p-10">
+          <div className="relative mx-auto h-44 w-44 overflow-hidden rounded-full ring-1 ring-primary/15 sm:mx-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/charline.svg" alt="Charline" className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <p className="eyebrow">Faire connaissance</p>
+            <p className="mt-4 font-serif text-2xl leading-relaxed text-foreground/85 sm:text-[1.7rem]">
+              Je suis Charline. J'accompagne les femmes qui ressentent le besoin de se déposer, de
+              s'écouter et de se reconnecter à elles-mêmes.
+            </p>
+            <p className="mt-4 text-foreground/60">
+              Un espace sans jugement, fait de douceur, d'écoute et de sécurité — où tu choisis de
+              prendre soin de toi.
             </p>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2">
-            {prestations.map((p) => {
-              const Icon = p.icon;
-              return (
-                <div
-                  key={p.title}
-                  className="group rounded-[1.75rem] border border-primary/10 bg-card/70 p-8 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-primary/25"
-                >
-                  <span className="mb-5 grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="font-serif text-xl text-foreground">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-foreground/60">{p.text}</p>
-                </div>
-              );
-            })}
+      {/* Accompagnements (dynamiques) */}
+      <section id="accompagnements" className="scroll-mt-20 bg-muted/30 py-20">
+        <div className="mx-auto max-w-6xl px-5">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">Mes accompagnements</p>
+            <h2 className="mt-3 font-serif text-3xl text-foreground sm:text-4xl">Chaque chemin se construit avec toi</h2>
+            <p className="mt-3 text-foreground/60">En respectant ton histoire, ton rythme et tes besoins du moment.</p>
           </div>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {prestations.map((p) => (
+              <div key={p.id} className="group overflow-hidden rounded-[1.75rem] border border-primary/10 bg-card/80 backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-primary/25 hover:shadow-xl hover:shadow-primary/10">
+                {p.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.image_url} alt={p.nom} className="h-44 w-full object-cover" />
+                ) : (
+                  <div className="flex h-44 w-full items-center justify-center bg-gradient-to-br from-[#F2D9E4] via-[#EAD7E6] to-[#F4E6CF]">
+                    <Sparkles className="h-7 w-7 text-primary/50" />
+                  </div>
+                )}
+                <div className="p-6">
+                  <h3 className="font-serif text-xl text-foreground">{p.nom}</h3>
+                  {p.description && <p className="mt-2 text-sm leading-relaxed text-foreground/60">{p.description}</p>}
+                  <div className="mt-4 flex items-center justify-between border-t border-primary/8 pt-4 text-sm">
+                    <span className="text-foreground/60">{p.duree_minutes ?? 60} min · <span className="font-medium text-primary">{formatPrice(p.prix)}</span></span>
+                    <Link href="/reserver" className="font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">Réserver →</Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Témoignages */}
+      <section className="mx-auto max-w-5xl px-5 py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="eyebrow">Ce qu'elles en disent</p>
+          <div className="hairline-gold mx-auto mt-4 h-px w-20 opacity-50" />
+        </div>
+        <div className="mt-10 grid gap-5 sm:grid-cols-3">
+          {TEMOIGNAGES.map((t) => (
+            <figure key={t.name} className="rounded-[1.5rem] border border-primary/10 bg-card/60 p-6 backdrop-blur-sm">
+              <Quote className="h-5 w-5 text-primary/40" />
+              <blockquote className="mt-3 font-serif text-lg leading-snug text-foreground/85">« {t.quote} »</blockquote>
+              <figcaption className="mt-4 text-sm text-foreground/55">— {t.name}</figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 
@@ -115,18 +156,12 @@ export default function HomePage() {
           <div className="aura-blob aura-2" />
         </div>
         <div className="relative z-10 mx-auto max-w-2xl px-5 py-24 text-center">
-          <div className="hairline-gold mx-auto mb-8 h-px w-24" />
-          <h2 className="font-serif text-3xl text-foreground sm:text-4xl">
-            Prête à prendre soin de toi ?
-          </h2>
+          <h2 className="font-serif text-3xl text-foreground sm:text-4xl">Prête à prendre soin de toi ?</h2>
           <p className="mx-auto mt-4 max-w-md text-foreground/60">
             Choisis un créneau qui te convient ; je te recontacte pour confirmer notre rendez-vous.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/reserver"
-              className="rounded-full bg-primary px-8 py-3.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5"
-            >
+            <Link href="/reserver" className="rounded-full bg-primary px-8 py-3.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5">
               Prendre rendez-vous
             </Link>
             <Link href="/login" className="text-sm font-medium text-foreground/70 underline-offset-4 hover:text-foreground hover:underline">
