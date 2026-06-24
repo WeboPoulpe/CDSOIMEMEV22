@@ -13,6 +13,13 @@ export default async function EspaceMessageriePage() {
     ? await prisma.messages.findMany({ where: { cliente_id: profile.id }, orderBy: { created_at: "asc" } })
     : [];
 
+  if (profile) {
+    await prisma.messages.updateMany({
+      where: { cliente_id: profile.id, expediteur: "praticienne", lu: false },
+      data: { lu: true },
+    });
+  }
+
   return (
     <div>
       <PageHeader title="Messagerie" subtitle="Échange en toute simplicité avec ta praticienne." />

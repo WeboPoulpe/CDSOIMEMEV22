@@ -29,6 +29,12 @@ export default async function ClienteDetailPage({ params }: { params: Promise<{ 
   });
   if (!cliente) notFound();
 
+  // Ouvrir la fiche marque les messages de la cliente comme lus.
+  await prisma.messages.updateMany({
+    where: { cliente_id: cliente.id, expediteur: "cliente", lu: false },
+    data: { lu: true },
+  });
+
   const questionnaire = cliente.form_responses[0];
   const name = clienteName(cliente);
   const initials = name.split(/\s+/).map((w) => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();

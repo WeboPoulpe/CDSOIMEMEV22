@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
 import { clienteName, formatDateTime } from "@/lib/display";
 import { PageHeader, SectionCard, EmptyState } from "@/components/admin/ui";
+import { CancelBooking } from "./cancel-booking";
 
 export default async function EspacePage() {
   const session = await requireClient();
@@ -52,11 +53,14 @@ export default async function EspacePage() {
             </div>
           ))}
           {demandes.map((d) => (
-            <div key={d.id} className="flex items-center justify-between rounded-xl border border-dashed border-primary/20 px-4 py-3">
-              <span className="font-medium text-foreground">{d.care_types.nom}</span>
-              <span className="text-sm text-foreground/55">
-                {formatDateTime(d.requested_date)} · {d.status === "confirmed" ? "confirmé" : "en attente"}
+            <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-primary/20 px-4 py-3">
+              <span className="min-w-0">
+                <span className="block font-medium text-foreground">{d.care_types.nom}</span>
+                <span className="text-sm text-foreground/55">
+                  {formatDateTime(d.requested_date)} · {d.status === "confirmed" ? "confirmé" : "en attente"}
+                </span>
               </span>
+              <CancelBooking bookingId={d.id} />
             </div>
           ))}
         </div>

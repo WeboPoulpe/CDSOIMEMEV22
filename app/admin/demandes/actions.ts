@@ -14,6 +14,15 @@ export async function confirmBookingAction(id: string): Promise<{ error?: string
       data: { status: "confirmed", updated_at: new Date() },
       include: { profiles: true, care_types: true },
     });
+    // Crée automatiquement la séance correspondante (best-effort : certaines
+    // prestations personnalisées peuvent ne pas correspondre aux types autorisés).
+    try {
+      await prisma.seances.create({
+        data: { cliente_id: booking.cliente_id, type: booking.care_types.nom, date: booking.requested_date },
+      });
+    } catch (e) {
+      console.error("⚠️ séance auto non créée:", e);
+    }
     if (booking.profiles.email) {
       await notifyBookingConfirmed({
         clientEmail: booking.profiles.email,
