@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Sparkles, Quote } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/display";
+import { getPraticienneProfile } from "@/lib/praticienne";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,15 @@ const TEMOIGNAGES = [
 ];
 
 export default async function HomePage() {
-  const prestations = await prisma.care_types.findMany({
-    where: { actif: true },
-    orderBy: [{ ordre: "asc" }, { nom: "asc" }],
-    select: { id: true, nom: true, description: true, duree_minutes: true, prix: true, image_url: true },
-  });
+  const [prestations, prat] = await Promise.all([
+    prisma.care_types.findMany({
+      where: { actif: true },
+      orderBy: [{ ordre: "asc" }, { nom: "asc" }],
+      select: { id: true, nom: true, description: true, duree_minutes: true, prix: true, image_url: true },
+    }),
+    getPraticienneProfile(),
+  ]);
+  const charlinePhoto = prat.photo_profil || "/photos/charline-portrait-plantes.webp";
 
   return (
     <div>
@@ -83,7 +88,7 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-5xl items-center gap-10 px-5 sm:grid-cols-[0.8fr_1.2fr]">
           <div className="relative mx-auto h-56 w-56 overflow-hidden rounded-full ring-1 ring-primary/20 shadow-lg shadow-primary/10 sm:mx-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/photos/charline-portrait-plantes.webp" alt="Charline" className="h-full w-full object-cover" />
+            <img src={charlinePhoto} alt="Charline" className="h-full w-full object-cover" />
           </div>
           <div>
             <p className="eyebrow">Faire connaissance</p>
