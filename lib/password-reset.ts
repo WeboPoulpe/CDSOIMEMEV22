@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { getEmailService, resetPasswordEmailHtml } from "@/lib/integrations/email";
+import { getEmailMessages } from "@/lib/emails-settings";
 
 const BRAND = "CD soi-même";
 const FROM = process.env.AUTH_EMAIL_FROM?.trim() || "cdsoimeme@gmail.com";
@@ -43,11 +44,12 @@ export async function requestPasswordReset(emailRaw: string): Promise<{ ok: bool
   const url = resetUrl(token);
   try {
     const mail = getEmailService({ fromEmail: FROM, fromName: BRAND });
+    const msg = (await getEmailMessages()).reset;
     await mail.send({
       to: user.email,
       toName: user.name ?? undefined,
-      subject: `Accès à ton espace — ${BRAND}`,
-      html: resetPasswordEmailHtml({ businessName: BRAND, url, name: user.name ?? "" }),
+      subject: msg.subject,
+      html: resetPasswordEmailHtml({ businessName: BRAND, url, name: user.name ?? "", intro: msg.intro }),
     });
   } catch (e) {
     console.error("⚠️ email réinitialisation:", e);

@@ -221,6 +221,7 @@ export function bookingNotifyPraticienneHtml(p: {
   clientEmail: string;
   prestation: string;
   dateLabel: string;
+  intro?: string;
 }): string {
   return emailShell({
     businessName: "CD soi-même",
@@ -228,8 +229,10 @@ export function bookingNotifyPraticienneHtml(p: {
     accent: C.secondary,
     heading: "Nouvelle demande de rendez-vous",
     body:
-      para(`<strong>${p.clientName}</strong> (${p.clientEmail}) souhaite un rendez-vous.`) +
+      para(p.intro || "Tu as reçu une nouvelle demande de rendez-vous.") +
       detailsBox([
+        ["Cliente", p.clientName],
+        ["Email", p.clientEmail],
         ["Prestation", p.prestation],
         ["Créneau souhaité", p.dateLabel],
       ]) +
@@ -263,6 +266,7 @@ export function resetPasswordEmailHtml(p: {
   businessName: string;
   url: string;
   name?: string;
+  intro?: string;
 }): string {
   return emailShell({
     businessName: p.businessName,
@@ -270,7 +274,7 @@ export function resetPasswordEmailHtml(p: {
     accent: C.primary,
     heading: p.name ? `Bonjour ${p.name}` : "Ton mot de passe",
     body:
-      para("Voici ton lien sécurisé pour définir (ou réinitialiser) ton mot de passe et accéder à ton espace.") +
+      para(p.intro || "Voici ton lien sécurisé pour définir (ou réinitialiser) ton mot de passe et accéder à ton espace.") +
       `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 16px;"><tr><td style="border-radius:999px;background:${C.primary};"><a href="${p.url}" style="display:inline-block;padding:13px 26px;font:600 15px/1 ${SANS};color:#ffffff;text-decoration:none;border-radius:999px;">Définir mon mot de passe</a></td></tr></table>` +
       para(`<span style="color:${SUBTLE};font-size:13px;">Ce lien est valable 1 heure. Si tu n'es pas à l'origine de cette demande, tu peux ignorer cet email.</span>`),
   });

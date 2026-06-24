@@ -77,7 +77,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
               </ul>
             </Sec>
             <Sec title="Destinataires">
-              <p>Tes données sont destinées à {nomPrat} uniquement. Des sous-traitants techniques interviennent : Brevo (emails), Neon (base de données, UE), Vercel (hébergement). Aucune donnée n'est vendue ni cédée à des tiers à des fins commerciales.</p>
+              <p>Tes données sont destinées à {nomPrat} uniquement. Des sous-traitants techniques interviennent : Brevo (emails), Neon (base de données) et Vercel (hébergement). Certains hébergements peuvent impliquer un transfert hors Union européenne, encadré par des garanties appropriées (clauses contractuelles types). Aucune donnée n'est vendue ni cédée à des tiers à des fins commerciales.</p>
             </Sec>
             <Sec title="Durée de conservation">
               <p>Les données sont conservées le temps de l'accompagnement, puis archivées puis supprimées dans un délai raisonnable (en principe 3 ans après le dernier contact), sauf obligation légale contraire.</p>

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-const KEYS: EmailKey[] = ["booking_received", "booking_confirmed", "questionnaire"];
+const KEYS: EmailKey[] = ["booking_received", "booking_confirmed", "questionnaire", "reset", "booking_notify"];
 
 export function EmailEditor({ initial }: { initial: EmailMessages }) {
   const [msgs, setMsgs] = useState<EmailMessages>(initial);

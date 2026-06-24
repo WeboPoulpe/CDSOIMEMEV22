@@ -11,6 +11,8 @@ export async function getEmailMessages(): Promise<EmailMessages> {
     booking_received: { ...DEFAULT_EMAILS.booking_received, ...(v.booking_received ?? {}) },
     booking_confirmed: { ...DEFAULT_EMAILS.booking_confirmed, ...(v.booking_confirmed ?? {}) },
     questionnaire: { ...DEFAULT_EMAILS.questionnaire, ...(v.questionnaire ?? {}) },
+    reset: { ...DEFAULT_EMAILS.reset, ...(v.reset ?? {}) },
+    booking_notify: { ...DEFAULT_EMAILS.booking_notify, ...(v.booking_notify ?? {}) },
   };
 }
 

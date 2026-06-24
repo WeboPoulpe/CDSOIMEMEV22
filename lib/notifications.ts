@@ -26,7 +26,8 @@ export async function notifyBookingReceived(p: {
 }): Promise<void> {
   const email = getEmailService({ fromEmail: FROM, fromName: BRAND });
   const dateLabel = rdvDateLabel(p.date);
-  const msg = (await getEmailMessages()).booking_received;
+  const messages = await getEmailMessages();
+  const msg = messages.booking_received;
   try {
     await email.send({
       to: p.clientEmail,
@@ -38,10 +39,11 @@ export async function notifyBookingReceived(p: {
     console.error("⚠️ email accusé cliente:", e);
   }
   try {
+    const notif = messages.booking_notify;
     await email.send({
       to: PRATICIENNE,
-      subject: `Nouvelle demande — ${p.clientName}`,
-      html: bookingNotifyPraticienneHtml({ clientName: p.clientName, clientEmail: p.clientEmail, prestation: p.prestation, dateLabel }),
+      subject: notif.subject,
+      html: bookingNotifyPraticienneHtml({ clientName: p.clientName, clientEmail: p.clientEmail, prestation: p.prestation, dateLabel, intro: notif.intro }),
     });
   } catch (e) {
     console.error("⚠️ email notif praticienne:", e);
