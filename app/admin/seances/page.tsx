@@ -1,8 +1,11 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { clienteName, formatDateTime } from "@/lib/display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/admin/ui";
+
+export const dynamic = "force-dynamic";
 
 export default async function SeancesPage() {
   await requireAdmin();
@@ -24,7 +27,7 @@ export default async function SeancesPage() {
         <CardContent className="space-y-2">
           {upcoming.length === 0 && <p className="text-foreground/50">Aucune séance à venir.</p>}
           {upcoming.map((s) => (
-            <Row key={s.id} type={s.type} who={clienteName(s.profiles) !== "—" ? clienteName(s.profiles) : (s.nom_externe ?? "—")} when={formatDateTime(s.date)} lieu={s.lieu} />
+            <Row key={s.id} id={s.id} type={s.type} who={clienteName(s.profiles) !== "—" ? clienteName(s.profiles) : (s.nom_externe ?? "—")} when={formatDateTime(s.date)} lieu={s.lieu} />
           ))}
         </CardContent>
       </Card>
@@ -34,7 +37,7 @@ export default async function SeancesPage() {
         <CardContent className="space-y-2">
           {past.length === 0 && <p className="text-foreground/50">Aucune séance passée.</p>}
           {past.map((s) => (
-            <Row key={s.id} type={s.type} who={clienteName(s.profiles) !== "—" ? clienteName(s.profiles) : (s.nom_externe ?? "—")} when={formatDateTime(s.date)} lieu={s.lieu} muted />
+            <Row key={s.id} id={s.id} type={s.type} who={clienteName(s.profiles) !== "—" ? clienteName(s.profiles) : (s.nom_externe ?? "—")} when={formatDateTime(s.date)} lieu={s.lieu} muted />
           ))}
         </CardContent>
       </Card>
@@ -42,14 +45,14 @@ export default async function SeancesPage() {
   );
 }
 
-function Row({ type, who, when, lieu, muted }: { type: string; who: string; when: string; lieu: string | null; muted?: boolean }) {
+function Row({ id, type, who, when, lieu, muted }: { id: string; type: string; who: string; when: string; lieu: string | null; muted?: boolean }) {
   return (
-    <div className={`flex items-center justify-between rounded-lg px-3 py-2 ${muted ? "" : "bg-muted/40"}`}>
+    <Link href={`/admin/seances/${id}`} className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-muted ${muted ? "" : "bg-muted/40"}`}>
       <div>
         <p className="font-medium">{who} — {type}</p>
         {lieu && <p className="text-sm text-foreground/55">{lieu}</p>}
       </div>
       <span className="text-sm text-foreground/60">{when}</span>
-    </div>
+    </Link>
   );
 }

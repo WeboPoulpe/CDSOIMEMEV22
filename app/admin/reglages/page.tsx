@@ -1,15 +1,17 @@
 import { requireAdmin } from "@/lib/auth";
 import { getPraticienneProfile } from "@/lib/praticienne";
 import { getActiveMantra } from "@/lib/mantra";
+import { getTemoignages } from "@/lib/temoignages";
 import { PageHeader, SectionCard } from "@/components/admin/ui";
 import { SettingsForm } from "./settings-form";
 import { MantraForm } from "./mantra-form";
+import { TemoignageEditor } from "./temoignage-editor";
 
 export const dynamic = "force-dynamic";
 
 export default async function ReglagesPage() {
   await requireAdmin();
-  const [p, mantra] = await Promise.all([getPraticienneProfile(), getActiveMantra()]);
+  const [p, mantra, temoignages] = await Promise.all([getPraticienneProfile(), getActiveMantra(), getTemoignages()]);
   return (
     <div className="space-y-6">
       <PageHeader title="Réglages" subtitle="Ton profil et tes informations légales." />
@@ -17,6 +19,10 @@ export default async function ReglagesPage() {
       <SectionCard title="Mantra du moment">
         <p className="mb-3 text-sm text-foreground/55">Affiché en haut de l'espace de tes clientes.</p>
         <MantraForm initial={mantra ?? ""} />
+      </SectionCard>
+
+      <SectionCard title="Témoignages (page d'accueil)">
+        <TemoignageEditor initial={temoignages} />
       </SectionCard>
 
       <SettingsForm

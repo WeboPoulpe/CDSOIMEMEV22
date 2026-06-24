@@ -280,6 +280,53 @@ export function resetPasswordEmailHtml(p: {
   });
 }
 
+export function reminderHtml(p: {
+  businessName: string;
+  clientName: string;
+  type: string;
+  dateLabel: string;
+}): string {
+  return emailShell({
+    businessName: p.businessName,
+    badge: "Rappel",
+    accent: C.primary,
+    heading: p.clientName ? `À demain ${p.clientName} 🌿` : "Rappel de ton rendez-vous",
+    body:
+      para("Petit rappel tout doux : ton rendez-vous approche.") +
+      detailsBox([
+        ["Soin", p.type],
+        ["Le", p.dateLabel],
+      ]) +
+      para("Si tu as un empêchement, préviens-moi dès que possible. À très vite !"),
+  });
+}
+
+export function seanceSummaryHtml(p: {
+  businessName: string;
+  clientName: string;
+  type: string;
+  dateLabel: string;
+  notes?: string | null;
+  exercices?: string | null;
+}): string {
+  const nl = (t: string) => t.replace(/\n/g, "<br>");
+  return emailShell({
+    businessName: p.businessName,
+    badge: "Après ta séance",
+    accent: C.secondary,
+    heading: `Le récap de notre séance 🌿`,
+    body:
+      para(`${p.clientName}, voici un petit retour sur notre rencontre.`) +
+      detailsBox([
+        ["Soin", p.type],
+        ["Le", p.dateLabel],
+      ]) +
+      (p.notes ? para(`<strong>Mes notes :</strong><br>${nl(p.notes)}`) : "") +
+      (p.exercices ? para(`<strong>À pratiquer d'ici la prochaine fois :</strong><br>${nl(p.exercices)}`) : "") +
+      para("Prends soin de toi. À très bientôt."),
+  });
+}
+
 export function questionnaireInviteHtml(p: {
   businessName: string;
   url: string;

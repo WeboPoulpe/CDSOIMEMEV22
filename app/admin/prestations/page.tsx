@@ -2,20 +2,23 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/display";
+import { getForfaits } from "@/lib/forfaits";
 import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/admin/ui";
+import { PageHeader, SectionCard } from "@/components/admin/ui";
 import { CardActions } from "./card-actions";
+import { ForfaitEditor } from "./forfait-editor";
 
 export const dynamic = "force-dynamic";
 
 export default async function PrestationsPage() {
   await requireAdmin();
-  const prestations = await prisma.care_types.findMany({
-    orderBy: [{ ordre: "asc" }, { nom: "asc" }],
-  });
+  const [prestations, forfaits] = await Promise.all([
+    prisma.care_types.findMany({ orderBy: [{ ordre: "asc" }, { nom: "asc" }] }),
+    getForfaits(),
+  ]);
 
   return (
-    <div>
+    <div className="space-y-8">
       <PageHeader
         title="Prestations"
         subtitle="Tes soins et accompagnements"
@@ -57,6 +60,11 @@ export default async function PrestationsPage() {
           ))}
         </div>
       )}
+
+      <SectionCard title="Forfaits / accompagnements">
+        <p className="mb-4 text-sm text-foreground/55">Présentés sur la page d'accueil (ex. Être Soi, Transformation, à la carte).</p>
+        <ForfaitEditor initial={forfaits} />
+      </SectionCard>
     </div>
   );
 }

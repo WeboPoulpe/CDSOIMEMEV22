@@ -3,25 +3,23 @@ import { Sparkles, Quote } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/lib/display";
 import { getPraticienneProfile } from "@/lib/praticienne";
+import { getForfaits } from "@/lib/forfaits";
+import { getTemoignages } from "@/lib/temoignages";
 
 export const dynamic = "force-dynamic";
 
 const VALUES = ["Douceur", "Écoute", "Sécurité"];
 
-const TEMOIGNAGES = [
-  { quote: "Un moment suspendu — j'en suis ressortie plus légère et apaisée.", name: "Marie" },
-  { quote: "Charline crée un espace d'une douceur rare. On se sent vraiment écoutée.", name: "Corène" },
-  { quote: "Un accompagnement qui m'a aidée à y voir plus clair, à mon rythme.", name: "Christelle" },
-];
-
 export default async function HomePage() {
-  const [prestations, prat] = await Promise.all([
+  const [prestations, prat, forfaits, temoignages] = await Promise.all([
     prisma.care_types.findMany({
       where: { actif: true },
       orderBy: [{ ordre: "asc" }, { nom: "asc" }],
       select: { id: true, nom: true, description: true, duree_minutes: true, prix: true, image_url: true },
     }),
     getPraticienneProfile(),
+    getForfaits(),
+    getTemoignages(),
   ]);
   const charlinePhoto = prat.photo_profil || "/photos/charline-portrait-plantes.webp";
 
@@ -138,6 +136,33 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Forfaits */}
+      {forfaits.length > 0 && (
+        <section className="border-t border-primary/10 bg-muted/40 py-20">
+          <div className="mx-auto max-w-5xl px-5">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="eyebrow">Aller plus loin</p>
+              <h2 className="mt-3 font-serif text-3xl text-foreground sm:text-4xl">Mes forfaits d'accompagnement</h2>
+            </div>
+            <div className="mt-12 grid gap-5 sm:grid-cols-3">
+              {forfaits.map((f, i) => (
+                <div key={i} className="flex flex-col rounded-[1.75rem] border border-primary/10 bg-card/80 p-7 backdrop-blur-sm">
+                  <h3 className="font-serif text-xl text-foreground">{f.nom}</h3>
+                  {f.nbSeances && <p className="mt-1 text-sm text-primary">{f.nbSeances}</p>}
+                  {f.description && <p className="mt-3 flex-1 text-sm leading-relaxed text-foreground/60">{f.description}</p>}
+                  {f.prix && <p className="mt-4 border-t border-primary/8 pt-4 font-medium text-foreground">{f.prix}</p>}
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link href="/reserver" className="rounded-full bg-primary px-7 py-3 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5">
+                Prendre rendez-vous
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Mon univers */}
       <section className="border-y border-primary/10 bg-secondary/10 py-20">
         <div className="mx-auto max-w-6xl px-5">
@@ -160,23 +185,25 @@ export default async function HomePage() {
       </section>
 
       {/* Témoignages */}
-      <section className="bg-background py-20">
-        <div className="mx-auto max-w-5xl px-5">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="eyebrow">Ce qu'elles en disent</p>
-            <div className="hairline-gold mx-auto mt-4 h-px w-20 opacity-50" />
+      {temoignages.length > 0 && (
+        <section className="bg-background py-20">
+          <div className="mx-auto max-w-5xl px-5">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="eyebrow">Ce qu'elles en disent</p>
+              <div className="hairline-gold mx-auto mt-4 h-px w-20 opacity-50" />
+            </div>
+            <div className="mt-10 grid gap-5 sm:grid-cols-3">
+              {temoignages.map((t, i) => (
+                <figure key={i} className="rounded-[1.5rem] border border-primary/10 bg-card/80 p-6 shadow-sm backdrop-blur-sm">
+                  <Quote className="h-5 w-5 text-primary/40" />
+                  <blockquote className="mt-3 font-serif text-lg leading-snug text-foreground/85">« {t.quote} »</blockquote>
+                  <figcaption className="mt-4 text-sm text-foreground/55">— {t.name}</figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
-          <div className="mt-10 grid gap-5 sm:grid-cols-3">
-            {TEMOIGNAGES.map((t) => (
-              <figure key={t.name} className="rounded-[1.5rem] border border-primary/10 bg-card/80 p-6 shadow-sm backdrop-blur-sm">
-                <Quote className="h-5 w-5 text-primary/40" />
-                <blockquote className="mt-3 font-serif text-lg leading-snug text-foreground/85">« {t.quote} »</blockquote>
-                <figcaption className="mt-4 text-sm text-foreground/55">— {t.name}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA final */}
       <section className="relative isolate overflow-hidden border-t border-primary/10 bg-muted/50">
