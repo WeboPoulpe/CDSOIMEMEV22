@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getAvailableSlots } from "@/lib/availability";
 import { notifyBookingReceived } from "@/lib/notifications";
 import { logConsent } from "@/lib/consent";
+import { rateLimit } from "@/lib/rate-limit";
 
 /** CORS headers so the booking widget can call the API from cdsoimeme.fr. */
 export const CORS_HEADERS: Record<string, string> = {
@@ -21,6 +22,7 @@ export const publicBookingSchema = z.object({
   requestedDate: z.string().min(1, "Date requise"), // ISO datetime
   notes: z.string().optional(),
   consent: z.boolean().optional(),
+  website: z.string().optional(), // honeypot (doit rester vide)
 });
 
 export type PublicBookingInput = z.infer<typeof publicBookingSchema>;
@@ -38,6 +40,10 @@ export async function createPublicBooking(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Données invalides." };
   }
   const d = parsed.data;
+  if (d.website && d.website.trim()) return { ok: true }; // honeypot — on ignore silencieusement
+  if (!(await rateLimit("booking", 8, 3600))) {
+    return { ok: false, error: "Trop de demandes pour le moment. Réessaie un peu plus tard." };
+  }
   if (!d.consent) return { ok: false, error: "Merci d'accepter la politique de confidentialité." };
 
   const care = await prisma.care_types.findFirst({ where: { id: d.careTypeId, actif: true } });

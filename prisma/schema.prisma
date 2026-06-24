@@ -149,6 +149,14 @@ model consent_logs {
   consented_at DateTime @default(now()) @db.Timestamptz(6)
 }
 
+model rate_limits {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bucket     String
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([bucket, created_at])
+}
+
 model form_responses {
   id                                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   client_id                         String   @db.Uuid

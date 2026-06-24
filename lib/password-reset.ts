@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { getEmailService, resetPasswordEmailHtml } from "@/lib/integrations/email";
 import { getEmailMessages } from "@/lib/emails-settings";
+import { rateLimit } from "@/lib/rate-limit";
 
 const BRAND = "CD soi-même";
 const FROM = process.env.AUTH_EMAIL_FROM?.trim() || "cdsoimeme@gmail.com";
@@ -21,6 +22,8 @@ function resetUrl(token: string): string {
 export async function requestPasswordReset(emailRaw: string): Promise<{ ok: boolean; demoLink?: string }> {
   const email = emailRaw.trim();
   if (!email || !email.includes("@")) return { ok: false };
+  // Anti-abus : limite les envois par IP, mais renvoie ok (pas d'énumération).
+  if (!(await rateLimit("reset", 5, 900))) return { ok: true };
 
   let user = await prisma.auth_users.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
 

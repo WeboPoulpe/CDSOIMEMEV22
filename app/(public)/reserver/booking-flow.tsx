@@ -28,7 +28,7 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
   const [presta, setPresta] = useState<Prestation | null>(null);
   const [date, setDate] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
-  const [form, setForm] = useState({ prenom: "", nom: "", email: "", telephone: "", notes: "" });
+  const [form, setForm] = useState({ prenom: "", nom: "", email: "", telephone: "", notes: "", website: "" });
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -130,6 +130,17 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
                   <Label>Un mot pour Charline (optionnel)</Label>
                   <Textarea value={form.notes} onChange={set("notes")} rows={3} />
                 </div>
+                {/* honeypot anti-bot — laissé vide par les humains */}
+                <input
+                  type="text"
+                  name="website"
+                  value={form.website}
+                  onChange={set("website")}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="absolute left-[-9999px] h-0 w-0 opacity-0"
+                />
                 <label className="flex items-start gap-2.5 text-sm text-foreground/65">
                   <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4" required />
                   <span>
