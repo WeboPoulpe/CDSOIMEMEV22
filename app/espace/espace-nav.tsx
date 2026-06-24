@@ -8,6 +8,7 @@ const NAV = [
   { href: "/espace", label: "Accueil" },
   { href: "/espace/reserver", label: "Prendre RDV" },
   { href: "/espace/questionnaire", label: "Questionnaire" },
+  { href: "/espace/journal", label: "Journal" },
   { href: "/espace/documents", label: "Documents" },
   { href: "/espace/messagerie", label: "Messagerie" },
   { href: "/espace/confidentialite", label: "Mes données" },

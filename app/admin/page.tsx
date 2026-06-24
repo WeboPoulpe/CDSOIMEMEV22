@@ -6,13 +6,16 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { clienteName, formatDateTime } from "@/lib/display";
 import { PageHeader, StatCard, SectionCard, EmptyState } from "@/components/admin/ui";
+import { getPraticienneProfile } from "@/lib/praticienne";
+import { TodoList } from "./todo-list";
 
 export default async function AdminHome() {
   const session = await requireAdmin();
   const firstName = (session.user.name || "Charline").split(" ")[0];
   const now = new Date();
+  const prat = await getPraticienneProfile();
 
-  const [clientesCount, pendingCount, upcomingCount, unreadCount, pending, upcoming, messages] =
+  const [clientesCount, pendingCount, upcomingCount, unreadCount, pending, upcoming, messages, todos] =
     await Promise.all([
       prisma.profiles.count(),
       prisma.booking_requests.count({ where: { status: "pending" } }),
@@ -35,6 +38,11 @@ export default async function AdminHome() {
         include: { profiles: true },
         take: 4,
       }),
+      prisma.todos.findMany({
+        where: { praticienne_id: prat.id },
+        orderBy: [{ statut: "asc" }, { created_at: "desc" }],
+        take: 30,
+      }),
     ]);
 
   return (
@@ -49,6 +57,19 @@ export default async function AdminHome() {
         <StatCard icon={CalendarDays} tone="mauve" label="Séances à venir" value={upcomingCount} href="/admin/seances" />
         <StatCard icon={MessageCircle} tone="gold" label="Messages non lus" value={unreadCount} />
         <StatCard icon={Users} tone="sage" label="Clientes" value={clientesCount} href="/admin/clientes" />
+      </div>
+
+      <div className="mt-6">
+        <SectionCard title="Ma to-do ✨">
+          <TodoList
+            todos={todos.map((t) => ({
+              id: t.id,
+              titre: t.titre,
+              statut: t.statut ?? "en_attente",
+              echeance: t.date_echeance ? format(t.date_echeance, "d MMM", { locale: fr }) : null,
+            }))}
+          />
+        </SectionCard>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">

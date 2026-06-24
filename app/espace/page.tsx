@@ -3,6 +3,7 @@ import { CalendarHeart, FileText, MessageCircle } from "lucide-react";
 import { requireClient } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
+import { getActiveMantra } from "@/lib/mantra";
 import { clienteName, formatDateTime } from "@/lib/display";
 import { PageHeader, SectionCard, EmptyState } from "@/components/admin/ui";
 import { CancelBooking } from "./cancel-booking";
@@ -25,6 +26,7 @@ export default async function EspacePage() {
   }
 
   const now = new Date();
+  const mantra = await getActiveMantra();
   const [seances, demandes] = await Promise.all([
     prisma.seances.findMany({ where: { cliente_id: profile.id, date: { gte: now } }, orderBy: { date: "asc" } }),
     prisma.booking_requests.findMany({
@@ -36,6 +38,11 @@ export default async function EspacePage() {
 
   return (
     <div>
+      {mantra && (
+        <div className="mb-6 rounded-2xl border border-primary/10 bg-secondary/10 px-5 py-4 text-center">
+          <p className="font-serif text-lg italic text-foreground/80">« {mantra} »</p>
+        </div>
+      )}
       <PageHeader
         title={`Bonjour ${profile.prenom ?? clienteName(profile)} ✨`}
         subtitle="Ton espace de soin et d'accompagnement."

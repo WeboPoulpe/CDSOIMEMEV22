@@ -10,6 +10,7 @@ import { SectionCard, EmptyState } from "@/components/admin/ui";
 import { ReplyComposer } from "./reply-composer";
 import { AddSeanceForm, AddDocumentForm, DocumentUpload } from "./manage-forms";
 import { SendQuestionnaire } from "./send-questionnaire";
+import { PrivateNotes } from "./private-notes";
 import { Tabs } from "./tabs";
 
 export const dynamic = "force-dynamic";
@@ -25,9 +26,15 @@ export default async function ClienteDetailPage({ params }: { params: Promise<{ 
       documents: { orderBy: { created_at: "desc" } },
       messages: { orderBy: { created_at: "asc" }, take: 80 },
       form_responses: { orderBy: { created_at: "desc" }, take: 1 },
+      client_journal: { where: { partage_praticienne: true }, orderBy: { created_at: "desc" } },
     },
   });
   if (!cliente) notFound();
+
+  const privateNotes = await prisma.private_notes.findMany({
+    where: { cliente_id: cliente.id },
+    orderBy: { created_at: "desc" },
+  });
 
   // Ouvrir la fiche marque les messages de la cliente comme lus.
   await prisma.messages.updateMany({
@@ -143,6 +150,35 @@ export default async function ClienteDetailPage({ params }: { params: Promise<{ 
     </SectionCard>
   );
 
+  const notesPanel = (
+    <SectionCard title="Notes privées">
+      <PrivateNotes
+        clienteId={cliente.id}
+        notes={privateNotes.map((n) => ({
+          id: n.id,
+          contenu: n.contenu,
+          ressentis: n.ressentis,
+          axes: n.axes_explorer,
+          date: formatDateTime(n.created_at),
+        }))}
+      />
+    </SectionCard>
+  );
+
+  const journalPanel = (
+    <SectionCard title="Journal partagé">
+      <div className="space-y-2">
+        {cliente.client_journal.length === 0 && <EmptyState>Rien partagé pour l'instant.</EmptyState>}
+        {cliente.client_journal.map((j) => (
+          <div key={j.id} className="rounded-xl bg-muted/40 px-4 py-3">
+            <p className="whitespace-pre-wrap text-sm text-foreground">{j.contenu}</p>
+            <p className="mt-2 text-xs text-foreground/40">{formatDateTime(j.created_at)}</p>
+          </div>
+        ))}
+      </div>
+    </SectionCard>
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -198,6 +234,8 @@ export default async function ClienteDetailPage({ params }: { params: Promise<{ 
             { key: "questionnaire", label: "Questionnaire", content: questionnairePanel },
             { key: "messagerie", label: "Messagerie", badge: cliente.messages.length, content: messageriePanel },
             { key: "documents", label: "Documents", badge: cliente.documents.length, content: documentsPanel },
+            { key: "notes", label: "Notes privées", badge: privateNotes.length, content: notesPanel },
+            { key: "journal", label: "Journal", badge: cliente.client_journal.length, content: journalPanel },
           ]}
         />
       </div>
