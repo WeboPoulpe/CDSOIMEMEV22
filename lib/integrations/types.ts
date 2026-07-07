@@ -22,3 +22,22 @@ export type CalendarEvent = {
 export interface CalendarService {
   createEvent(evt: CalendarEvent): Promise<{ id: string; simulated: boolean }>;
 }
+
+export type CheckoutParams = {
+  amountCents: number;
+  currency: string;
+  label: string;
+  successUrl: string;
+  cancelUrl: string;
+  metadata: Record<string, string>;
+};
+
+export type CheckoutSession = { id: string; url: string; simulated: boolean };
+
+export type StripeWebhookResult = { type: string; paymentId?: string; paymentIntent?: string };
+
+export interface PaymentService {
+  createCheckoutSession(p: CheckoutParams): Promise<CheckoutSession>;
+  /** Returns null if the signature is invalid or the event is irrelevant. */
+  verifyWebhook(rawBody: string, signature: string | null): StripeWebhookResult | null;
+}
