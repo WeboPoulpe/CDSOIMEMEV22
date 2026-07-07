@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { clienteName } from "@/lib/display";
 import { notifyBookingConfirmed } from "@/lib/notifications";
+import { createSeancePayment, paymentPublicUrl } from "@/lib/payments";
 
 export async function confirmBookingAction(id: string): Promise<{ error?: string }> {
   await requireAdmin();
@@ -16,19 +17,37 @@ export async function confirmBookingAction(id: string): Promise<{ error?: string
     });
     // Crée automatiquement la séance correspondante (best-effort : certaines
     // prestations personnalisées peuvent ne pas correspondre aux types autorisés).
+    let seanceId: string | null = null;
     try {
-      await prisma.seances.create({
+      const seance = await prisma.seances.create({
         data: { cliente_id: booking.cliente_id, type: booking.care_types.nom, date: booking.requested_date },
       });
+      seanceId = seance.id;
     } catch (e) {
       console.error("⚠️ séance auto non créée:", e);
     }
+
+    // Paiement optionnel : crée une ligne de paiement si la prestation a un prix.
+    let payUrl: string | undefined;
+    try {
+      const token = await createSeancePayment({
+        clienteId: booking.cliente_id,
+        seanceId,
+        prix: booking.care_types.prix,
+        label: booking.care_types.nom,
+      });
+      if (token) payUrl = paymentPublicUrl(token);
+    } catch (e) {
+      console.error("⚠️ paiement non créé:", e);
+    }
+
     if (booking.profiles.email) {
       await notifyBookingConfirmed({
         clientEmail: booking.profiles.email,
         clientName: clienteName(booking.profiles),
         prestation: booking.care_types.nom,
         date: booking.requested_date,
+        payUrl,
       });
     }
     revalidatePath("/admin/demandes");
