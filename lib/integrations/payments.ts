@@ -4,10 +4,11 @@ import type {
   CheckoutSession,
   StripeWebhookResult,
 } from "@/lib/integrations/types";
+import type Stripe from "stripe";
 
 /** Euro Decimal/number/string → integer cents. Returns 0 when not parseable. */
 export function toAmountCents(prix: unknown): number {
-  const n = typeof prix === "number" ? prix : parseFloat(String(prix ?? ""));
+  const n = typeof prix === "number" ? prix : Number(prix ?? "");
   if (!isFinite(n) || n <= 0) return 0;
   return Math.round(n * 100);
 }
@@ -42,11 +43,11 @@ class SimulatedPaymentService implements PaymentService {
 class StripePaymentService implements PaymentService {
   constructor(private secretKey: string, private webhookSecret: string) {}
 
-  private client() {
+  private client(): Stripe {
     // Lazy import keeps the SDK out of the simulated path / edge bundles.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Stripe = require("stripe");
-    return new Stripe(this.secretKey);
+    const StripeCtor = require("stripe") as typeof Stripe;
+    return new StripeCtor(this.secretKey);
   }
 
   async createCheckoutSession(p: CheckoutParams): Promise<CheckoutSession> {
@@ -79,7 +80,10 @@ class StripePaymentService implements PaymentService {
     } catch {
       return null; // bad signature
     }
-    const parsed = parseCheckoutCompleted(event);
+    // Stripe.Event is a large discriminated union whose `data.object` shape varies
+    // per event type; parseCheckoutCompleted only reads fields after checking
+    // event.type === "checkout.session.completed", so this narrowing cast is safe.
+    const parsed = parseCheckoutCompleted(event as unknown as Parameters<typeof parseCheckoutCompleted>[0]);
     if (!parsed) return { type: event.type };
     return { type: event.type, paymentId: parsed.paymentId, paymentIntent: parsed.paymentIntent };
   }
