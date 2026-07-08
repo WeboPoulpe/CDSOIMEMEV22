@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { currentClienteProfile } from "@/lib/espace";
 import { getActiveMantra } from "@/lib/mantra";
 import { clienteName, formatDateTime } from "@/lib/display";
+import { paymentPublicUrl } from "@/lib/payments";
 import { PageHeader, SectionCard, EmptyState } from "@/components/admin/ui";
 import { CancelBooking } from "./cancel-booking";
 
@@ -36,6 +37,12 @@ export default async function EspacePage() {
     }),
   ]);
 
+  const seanceIds = seances.map((s) => s.id);
+  const payments = seanceIds.length
+    ? await prisma.payments.findMany({ where: { seance_id: { in: seanceIds } } })
+    : [];
+  const payBySeance = new Map(payments.map((p) => [p.seance_id, p]));
+
   return (
     <div>
       {mantra && (
@@ -53,12 +60,28 @@ export default async function EspacePage() {
           {seances.length === 0 && demandes.length === 0 && (
             <EmptyState>Aucune séance à venir pour le moment.</EmptyState>
           )}
-          {seances.map((s) => (
-            <div key={s.id} className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3">
-              <span className="font-medium text-foreground">{s.type}</span>
-              <span className="text-sm text-foreground/70">{formatDateTime(s.date)}</span>
-            </div>
-          ))}
+          {seances.map((s) => {
+            const pay = payBySeance.get(s.id);
+            return (
+              <div key={s.id} className="flex items-center justify-between gap-3 rounded-xl bg-muted/50 px-4 py-3">
+                <span className="min-w-0">
+                  <span className="block font-medium text-foreground">{s.type}</span>
+                  <span className="text-sm text-foreground/70">{formatDateTime(s.date)}</span>
+                </span>
+                {pay && pay.status === "paid" && (
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Réglé ✓</span>
+                )}
+                {pay && pay.status === "pending" && (
+                  <a
+                    href={paymentPublicUrl(pay.token)}
+                    className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+                  >
+                    Régler {(pay.amount_cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+                  </a>
+                )}
+              </div>
+            );
+          })}
           {demandes.map((d) => (
             <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-primary/20 px-4 py-3">
               <span className="min-w-0">
