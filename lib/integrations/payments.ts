@@ -96,8 +96,10 @@ class StripePaymentService implements PaymentService {
 // ───────── Selector ─────────
 
 export function getPaymentService(): PaymentService {
+  // Gated only on the key (independent of DEMO_MODE): a Stripe secret key present
+  // means real Stripe (test or live per the key). No key → simulated. This lets
+  // payments run against Stripe test mode while emails stay simulated (DEMO_MODE).
   const key = process.env.STRIPE_SECRET_KEY?.trim();
-  const demo = process.env.DEMO_MODE === "true";
-  if (!key || demo) return new SimulatedPaymentService();
+  if (!key) return new SimulatedPaymentService();
   return new StripePaymentService(key, process.env.STRIPE_WEBHOOK_SECRET?.trim() ?? "");
 }

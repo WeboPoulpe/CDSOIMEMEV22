@@ -33,6 +33,14 @@ describe("getPaymentService (demo mode)", () => {
   it("verifyWebhook returns ignored in simulated mode", () => {
     expect(getPaymentService().verifyWebhook("{}", null)).toEqual({ status: "ignored" });
   });
+  it("returns the REAL Stripe service when a key is set, regardless of DEMO_MODE", () => {
+    process.env.DEMO_MODE = "true";
+    process.env.STRIPE_SECRET_KEY = "sk_test_dummy";
+    process.env.STRIPE_WEBHOOK_SECRET = "";
+    // Real service short-circuits to "invalid" when the webhook secret is absent
+    // (no network call); the simulated service would return "ignored" instead.
+    expect(getPaymentService().verifyWebhook("{}", null)).toEqual({ status: "invalid" });
+  });
 });
 
 describe("parseCheckoutCompleted", () => {
