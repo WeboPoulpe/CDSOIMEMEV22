@@ -2,7 +2,7 @@ import type {
   PaymentService,
   CheckoutParams,
   CheckoutSession,
-  StripeWebhookResult,
+  WebhookOutcome,
 } from "@/lib/integrations/types";
 import type Stripe from "stripe";
 
@@ -16,14 +16,14 @@ export function toAmountCents(prix: unknown): number {
 /** Pure: pull our paymentId + payment_intent out of a Stripe event shape. */
 export function parseCheckoutCompleted(event: {
   type: string;
-  data?: { object?: { metadata?: Record<string, string> | null; payment_intent?: string | null } };
+  data?: { object?: { metadata?: Record<string, string> | null; payment_intent?: string | null; payment_status?: string | null } };
 }): { paymentId: string; paymentIntent?: string } | null {
   if (event.type !== "checkout.session.completed") return null;
   const obj = event.data?.object;
+  if (obj?.payment_status !== "paid") return null;
   const paymentId = obj?.metadata?.paymentId;
   if (!paymentId) return null;
-  const pi = obj?.payment_intent;
-  return { paymentId, paymentIntent: pi ?? undefined };
+  return { paymentId, paymentIntent: obj?.payment_intent ?? undefined };
 }
 
 // ───────── Simulated service (demo / no API key) ─────────
@@ -33,8 +33,8 @@ class SimulatedPaymentService implements PaymentService {
     // No real charge: send the user straight to the success URL.
     return { id: `sim_${Date.now()}`, url: p.successUrl, simulated: true };
   }
-  verifyWebhook(): StripeWebhookResult | null {
-    return null; // webhook path is unused without real Stripe
+  verifyWebhook(): WebhookOutcome {
+    return { status: "ignored" }; // webhook path is unused without real Stripe
   }
 }
 
@@ -71,21 +71,25 @@ class StripePaymentService implements PaymentService {
     return { id: session.id, url: session.url as string, simulated: false };
   }
 
-  verifyWebhook(rawBody: string, signature: string | null): StripeWebhookResult | null {
-    if (!signature || !this.webhookSecret) return null;
+  verifyWebhook(rawBody: string, signature: string | null): WebhookOutcome {
+    if (!this.webhookSecret) {
+      console.error("⚠️ STRIPE_WEBHOOK_SECRET manquant — webhook non vérifié.");
+      return { status: "invalid" };
+    }
+    if (!signature) return { status: "invalid" };
     const stripe = this.client();
     let event;
     try {
       event = stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
     } catch {
-      return null; // bad signature
+      return { status: "invalid" }; // bad signature
     }
     // Stripe.Event is a large discriminated union whose `data.object` shape varies
     // per event type; parseCheckoutCompleted only reads fields after checking
     // event.type === "checkout.session.completed", so this narrowing cast is safe.
     const parsed = parseCheckoutCompleted(event as unknown as Parameters<typeof parseCheckoutCompleted>[0]);
-    if (!parsed) return { type: event.type };
-    return { type: event.type, paymentId: parsed.paymentId, paymentIntent: parsed.paymentIntent };
+    if (!parsed) return { status: "ignored" };
+    return { status: "fulfill", paymentId: parsed.paymentId, paymentIntent: parsed.paymentIntent };
   }
 }
 

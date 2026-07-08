@@ -45,3 +45,15 @@ export async function createSeancePayment(args: {
   });
   return token;
 }
+
+/**
+ * Whether the /regler success return may mark this payment paid.
+ * ONLY simulated sessions (id prefix "sim_") may be flipped here — real payments
+ * are fulfilled solely by the Stripe webhook. This is the sim/real safety boundary.
+ */
+export function shouldMarkSimPaid(
+  p: { status: string; stripe_session_id: string | null },
+  returnStatus: string | undefined
+): boolean {
+  return p.status === "pending" && returnStatus === "success" && !!p.stripe_session_id?.startsWith("sim_");
+}

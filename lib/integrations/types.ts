@@ -34,10 +34,13 @@ export type CheckoutParams = {
 
 export type CheckoutSession = { id: string; url: string; simulated: boolean };
 
-export type StripeWebhookResult = { type: string; paymentId?: string; paymentIntent?: string };
+export type WebhookOutcome =
+  | { status: "ignored" }                                              // simulated mode, or a valid but irrelevant event
+  | { status: "invalid" }                                              // signature verification failed or secret missing
+  | { status: "fulfill"; paymentId: string; paymentIntent?: string };  // a paid checkout to record
 
 export interface PaymentService {
   createCheckoutSession(p: CheckoutParams): Promise<CheckoutSession>;
-  /** Returns null if the signature is invalid or the event is irrelevant. */
-  verifyWebhook(rawBody: string, signature: string | null): StripeWebhookResult | null;
+  /** Synchronous: verifies the Stripe signature on the RAW body. */
+  verifyWebhook(rawBody: string, signature: string | null): WebhookOutcome;
 }

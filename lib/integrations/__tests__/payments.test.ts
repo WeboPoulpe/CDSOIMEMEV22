@@ -30,23 +30,29 @@ describe("getPaymentService (demo mode)", () => {
     expect(s.id.startsWith("sim_")).toBe(true);
     expect(s.url).toBe("http://localhost:3000/regler/abc?status=success");
   });
-  it("verifyWebhook returns null in simulated mode", () => {
-    expect(getPaymentService().verifyWebhook("{}", null)).toBeNull();
+  it("verifyWebhook returns ignored in simulated mode", () => {
+    expect(getPaymentService().verifyWebhook("{}", null)).toEqual({ status: "ignored" });
   });
 });
 
 describe("parseCheckoutCompleted", () => {
-  it("extracts paymentId + payment_intent on completed", () => {
+  it("extracts paymentId + payment_intent on a paid completed session", () => {
     const r = parseCheckoutCompleted({
       type: "checkout.session.completed",
-      data: { object: { metadata: { paymentId: "p1" }, payment_intent: "pi_1" } },
+      data: { object: { payment_status: "paid", metadata: { paymentId: "p1" }, payment_intent: "pi_1" } },
     });
     expect(r).toEqual({ paymentId: "p1", paymentIntent: "pi_1" });
+  });
+  it("returns null when payment_status is not paid", () => {
+    expect(parseCheckoutCompleted({
+      type: "checkout.session.completed",
+      data: { object: { payment_status: "unpaid", metadata: { paymentId: "p1" } } },
+    })).toBeNull();
   });
   it("returns null for other event types", () => {
     expect(parseCheckoutCompleted({ type: "payment_intent.created" })).toBeNull();
   });
   it("returns null when paymentId metadata is missing", () => {
-    expect(parseCheckoutCompleted({ type: "checkout.session.completed", data: { object: {} } })).toBeNull();
+    expect(parseCheckoutCompleted({ type: "checkout.session.completed", data: { object: { payment_status: "paid" } } })).toBeNull();
   });
 });

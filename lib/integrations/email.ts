@@ -261,7 +261,7 @@ export function bookingConfirmedClientHtml(p: {
       para(p.intro || `${p.clientName}, ton rendez-vous est confirmé.`) +
       detailsBox([
         ["Prestation", p.prestation],
-        ["Le", p.dateLabel],
+        ...(p.dateLabel ? ([["Le", p.dateLabel]] as [string, string][]) : []),
       ]) +
       payButton +
       para("Prends soin de toi d'ici là. À très vite 🌿"),

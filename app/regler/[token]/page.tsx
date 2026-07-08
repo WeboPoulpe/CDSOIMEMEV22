@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { theme } from "@/lib/theme";
+import { shouldMarkSimPaid } from "@/lib/payments";
 import { startCheckoutAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -20,12 +21,7 @@ export default async function ReglerPage({
   const payment = await prisma.payments.findUnique({ where: { token } });
 
   // Simulated sessions never fire a webhook: mark paid on the success return.
-  if (
-    payment &&
-    payment.status === "pending" &&
-    status === "success" &&
-    payment.stripe_session_id?.startsWith("sim_")
-  ) {
+  if (payment && shouldMarkSimPaid(payment, status)) {
     await prisma.payments.update({
       where: { id: payment.id },
       data: { status: "paid", paid_at: new Date() },
@@ -33,7 +29,8 @@ export default async function ReglerPage({
     payment.status = "paid";
   }
 
-  const paid = payment?.status === "paid" || status === "success";
+  const confirmedPaid = payment?.status === "paid";
+  const awaitingConfirmation = !confirmedPaid && status === "success";
 
   return (
     <main className="relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
@@ -43,10 +40,15 @@ export default async function ReglerPage({
 
           {!payment ? (
             <p className="mt-6 text-sm text-red-600">Ce lien de paiement est invalide.</p>
-          ) : paid ? (
+          ) : confirmedPaid ? (
             <>
               <p className="mt-4 text-sm text-foreground/60">Paiement bien reçu</p>
               <p className="mt-2 text-lg text-foreground">Merci ! Ta séance « {payment.label} » est réglée 🌿</p>
+            </>
+          ) : awaitingConfirmation ? (
+            <>
+              <p className="mt-4 text-sm text-foreground/60">Paiement en cours de confirmation</p>
+              <p className="mt-2 text-lg text-foreground">Merci ! Nous confirmons ton paiement très vite. 🌿</p>
             </>
           ) : (
             <>
@@ -55,6 +57,9 @@ export default async function ReglerPage({
               <p className="mt-1 text-sm text-foreground/60">{payment.label}</p>
               {status === "cancel" && (
                 <p className="mt-4 text-sm text-foreground/55">Paiement annulé — tu peux réessayer quand tu veux.</p>
+              )}
+              {status === "error" && (
+                <p className="mt-4 text-sm text-red-600">Le paiement n'a pas pu démarrer. Réessaie dans un instant.</p>
               )}
               <form action={startCheckoutAction.bind(null, token)} className="mt-7">
                 <button

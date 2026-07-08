@@ -9,20 +9,22 @@ export async function POST(req: Request) {
   const rawBody = await req.text(); // raw body required for signature verification
   const signature = req.headers.get("stripe-signature");
 
-  const result = getPaymentService().verifyWebhook(rawBody, signature);
-  if (!result) {
-    // Bad signature, simulated mode, or irrelevant event.
-    return NextResponse.json({ received: true }, { status: 200 });
+  const outcome = getPaymentService().verifyWebhook(rawBody, signature);
+
+  if (outcome.status === "invalid") {
+    // Bad/missing signature → 400 so Stripe marks the delivery failed and retries
+    // (surfaces a misconfigured STRIPE_WEBHOOK_SECRET instead of dropping payments silently).
+    return NextResponse.json({ error: "invalid signature" }, { status: 400 });
   }
 
-  if (result.paymentId) {
+  if (outcome.status === "fulfill") {
     // Idempotent: only flip pending → paid once.
     await prisma.payments.updateMany({
-      where: { id: result.paymentId, status: "pending" },
+      where: { id: outcome.paymentId, status: "pending" },
       data: {
         status: "paid",
         paid_at: new Date(),
-        stripe_payment_intent: result.paymentIntent ?? null,
+        stripe_payment_intent: outcome.paymentIntent ?? null,
       },
     });
   }
