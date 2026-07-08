@@ -246,7 +246,12 @@ export function bookingConfirmedClientHtml(p: {
   prestation: string;
   dateLabel: string;
   intro?: string;
+  payUrl?: string;
 }): string {
+  const payButton = p.payUrl
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:6px 0 16px;"><tr><td style="border-radius:999px;background:${C.primary};"><a href="${p.payUrl}" style="display:inline-block;padding:13px 26px;font:600 15px/1 ${SANS};color:#ffffff;text-decoration:none;border-radius:999px;">Régler ma séance</a></td></tr></table>` +
+      para(`<span style="color:${SUBTLE};font-size:13px;">Le paiement en ligne est optionnel — tu peux aussi régler sur place.</span>`)
+    : "";
   return emailShell({
     businessName: p.businessName,
     badge: "Rendez-vous confirmé",
@@ -256,8 +261,9 @@ export function bookingConfirmedClientHtml(p: {
       para(p.intro || `${p.clientName}, ton rendez-vous est confirmé.`) +
       detailsBox([
         ["Prestation", p.prestation],
-        ["Le", p.dateLabel],
+        ...(p.dateLabel ? ([["Le", p.dateLabel]] as [string, string][]) : []),
       ]) +
+      payButton +
       para("Prends soin de toi d'ici là. À très vite 🌿"),
   });
 }

@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { clienteName } from "@/lib/display";
 import { PageHeader } from "@/components/admin/ui";
 import { SeanceForm } from "./seance-form";
+import { paymentPublicUrl } from "@/lib/payments";
+import { PaymentPanel } from "./payment-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,11 @@ export default async function SeanceDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const s = await prisma.seances.findUnique({ where: { id }, include: { profiles: true } });
   if (!s) notFound();
+
+  const payment = await prisma.payments.findFirst({
+    where: { seance_id: s.id },
+    orderBy: { created_at: "desc" },
+  });
 
   const who = clienteName(s.profiles) !== "—" ? clienteName(s.profiles) : (s.nom_externe ?? "Séance");
 
@@ -35,6 +42,14 @@ export default async function SeanceDetailPage({ params }: { params: Promise<{ i
           exercices: s.exercices ?? "",
         }}
       />
+      {payment && (
+        <PaymentPanel
+          paymentId={payment.id}
+          status={payment.status}
+          amountLabel={(payment.amount_cents / 100).toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}
+          payUrl={paymentPublicUrl(payment.token)}
+        />
+      )}
     </div>
   );
 }

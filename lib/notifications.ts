@@ -50,12 +50,13 @@ export async function notifyBookingReceived(p: {
   }
 }
 
-/** On validation: confirm to the cliente. Best-effort. */
+/** On validation: confirm to the cliente (with optional pay link). Best-effort. */
 export async function notifyBookingConfirmed(p: {
   clientEmail: string;
   clientName: string;
   prestation: string;
   date: Date;
+  payUrl?: string;
 }): Promise<void> {
   const email = getEmailService({ fromEmail: FROM, fromName: BRAND });
   const msg = (await getEmailMessages()).booking_confirmed;
@@ -64,7 +65,7 @@ export async function notifyBookingConfirmed(p: {
       to: p.clientEmail,
       toName: p.clientName,
       subject: msg.subject,
-      html: bookingConfirmedClientHtml({ businessName: BRAND, clientName: p.clientName, prestation: p.prestation, dateLabel: rdvDateLabel(p.date), intro: msg.intro }),
+      html: bookingConfirmedClientHtml({ businessName: BRAND, clientName: p.clientName, prestation: p.prestation, dateLabel: rdvDateLabel(p.date), intro: msg.intro, payUrl: p.payUrl }),
     });
   } catch (e) {
     console.error("⚠️ email confirmation cliente:", e);
