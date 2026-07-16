@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isBefore,
   isSameDay, isSameMonth, startOfDay, startOfMonth, startOfWeek,
@@ -32,6 +32,21 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  // Auto-hauteur en iframe : publie la hauteur du contenu au site parent
+  // (postMessage) à chaque changement de taille/d'étape. Ignoré hors iframe.
+  useEffect(() => {
+    if (window.parent === window) return;
+    const post = () =>
+      window.parent.postMessage(
+        { type: "cdsoimeme:reserver:height", height: document.documentElement.scrollHeight },
+        "*"
+      );
+    post();
+    const ro = new ResizeObserver(post);
+    ro.observe(document.body);
+    return () => ro.disconnect();
+  }, []);
 
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
