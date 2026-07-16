@@ -83,7 +83,7 @@ export function BookingFlow({ prestations }: { prestations: Prestation[] }) {
                     )}
                     <span className="min-w-0 flex-1">
                       <span className="block font-serif text-lg text-foreground">{p.nom}</span>
-                      {p.description && <span className="mt-0.5 block truncate text-sm text-foreground/55">{p.description}</span>}
+                      {p.description && <span className="mt-0.5 block text-sm leading-snug text-foreground/55">{p.description}</span>}
                     </span>
                     <span className="ml-2 shrink-0 text-right text-sm text-foreground/70">
                       {p.dureeMinutes ? <span className="block">{p.dureeMinutes} min</span> : null}
